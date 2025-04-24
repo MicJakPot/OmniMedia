@@ -14,33 +14,33 @@
 		<vm:MainWindowViewModel/>
 	</Design.DataContext>
 
-	<Grid ColumnDefinitions="250,*" RowDefinitions="*,Auto">
-		<StackPanel Grid.Row="0" Grid.Column="0" Spacing="10" Margin="10" VerticalAlignment="Top">
-			<Button HorizontalAlignment="Stretch" Command="{Binding OpenCollectionCommand}">
-				<StackPanel Orientation="Horizontal" Spacing="5">
-					<PathIcon Data="{StaticResource search_square_regular}" Width="20" Height="20"/>
-					<TextBlock Text="Przeglądaj swoją Kolekcję"/>
+	<Grid ColumnDefinitions="300,*" RowDefinitions="*,Auto">
+		<StackPanel Grid.Row="0" Grid.Column="0" Spacing="25" Margin="15" VerticalAlignment="Top">
+			<Button HorizontalAlignment="Stretch" Command="{Binding OpenCollectionCommand}" Padding="15" MinHeight="45">
+				<StackPanel Orientation="Horizontal" Spacing="10">
+					<PathIcon Data="{StaticResource search_square_regular}" Width="25" Height="25"/>
+					<TextBlock Text="Przeglądaj swoją Kolekcję" FontSize="16" FontWeight="Bold"/>
 				</StackPanel>
 			</Button>
 
-			<Button HorizontalAlignment="Stretch" Command="{Binding OpenGameSearchCommand}">
-				<StackPanel Orientation="Horizontal" Spacing="5">
-					<PathIcon Data="{StaticResource games_regular}" Width="20" Height="20"/>
-					<TextBlock Text="Szukaj Gry"/>
+			<Button HorizontalAlignment="Stretch" Command="{Binding OpenGameSearchCommand}" Padding="10" MinHeight="45">
+				<StackPanel Orientation="Horizontal" Spacing="10">
+					<PathIcon Data="{StaticResource games_regular}" Width="25" Height="25"/>
+					<TextBlock Text="Szukaj Gry" FontSize="16" FontWeight="Bold"/>
 				</StackPanel>
 			</Button>
 
-			<Button HorizontalAlignment="Stretch" Command="{Binding OpenMusicSearchCommand}">
-				<StackPanel Orientation="Horizontal" Spacing="5">
-					<PathIcon Data="{StaticResource speaker_edit_regular}" Width="20" Height="20"/>
-					<TextBlock Text="Szukaj Muzyki"/>
+			<Button HorizontalAlignment="Stretch" Command="{Binding OpenMusicSearchCommand}" Padding="10" MinHeight="45">
+				<StackPanel Orientation="Horizontal" Spacing="10">
+					<PathIcon Data="{StaticResource speaker_edit_regular}" Width="25" Height="25"/>
+					<TextBlock Text="Szukaj Muzyki" FontSize="16" FontWeight="Bold" />
 				</StackPanel>
 			</Button>
 
-			<Button HorizontalAlignment="Stretch" Command="{Binding OpenMovieSearchCommand}">
-				<StackPanel Orientation="Horizontal" Spacing="5">
-					<PathIcon Data="{StaticResource movies_and_tv_regular}" Width="20" Height="20"/>
-					<TextBlock Text="Szukaj Filmów"/>
+			<Button HorizontalAlignment="Stretch" Command="{Binding OpenMovieSearchCommand}" Padding="10" MinHeight="45">
+				<StackPanel Orientation="Horizontal" Spacing="10">
+					<PathIcon Data="{StaticResource movies_and_tv_regular}" Width="25" Height="25"/>
+					<TextBlock Text="Szukaj Filmów" FontSize="16" FontWeight="Bold"/>
 				</StackPanel>
 			</Button>
 		</StackPanel>
@@ -51,32 +51,32 @@
                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
 		</Border>
 
-		<StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="10" Margin="10" HorizontalAlignment="Center">
-			<Button Command="{Binding ExportDatabaseCommand}">
-				<StackPanel Orientation="Horizontal" Spacing="5">
-					<PathIcon Data="{StaticResource window_new_regular}" Width="20" Height="20"/>
-					<TextBlock Text="Eksportuj Bazę"/>
+		<StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="10" Margin="10" HorizontalAlignment="Right">
+			<Button Command="{Binding ExportDatabaseCommand}" Padding="10" MinHeight="45">
+				<StackPanel Orientation="Horizontal" Spacing="10">
+					<PathIcon Data="{StaticResource window_new_regular}" Width="25" Height="25"/>
+					<TextBlock Text="Eksportuj Bazę" FontSize="16" FontWeight="Bold"/>
 				</StackPanel>
 			</Button>
 
-			<Button Command="{Binding ImportDatabaseCommand}">
-				<StackPanel Orientation="Horizontal" Spacing="5">
-					<PathIcon Data="{StaticResource table_add_regular}" Width="20" Height="20"/>
-					<TextBlock Text="Importuj Bazę"/>
+			<Button Command="{Binding ImportDatabaseCommand}" Padding="10" MinHeight="45">
+				<StackPanel Orientation="Horizontal" Spacing="10">
+					<PathIcon Data="{StaticResource table_add_regular}" Width="25" Height="25"/>
+					<TextBlock Text="Importuj Bazę" FontSize="16" FontWeight="Bold"/>
 				</StackPanel>
 			</Button>
 
-			<Button Command="{Binding OpenSettingsCommand}">
-				<StackPanel Orientation="Horizontal" Spacing="5">
-					<PathIcon Data="{StaticResource launcher_settings_regular}" Width="20" Height="20"/>
-					<TextBlock Text="Ustawienia"/>
+			<Button Command="{Binding OpenSettingsCommand}" Padding="10" MinHeight="45">
+				<StackPanel Orientation="Horizontal" Spacing="10">
+					<PathIcon Data="{StaticResource launcher_settings_regular}" Width="25" Height="25"/>
+					<TextBlock Text="Ustawienia" FontSize="16" FontWeight="Bold"/>
 				</StackPanel>
 			</Button>
 
-			<Button Command="{Binding OpenAboutCommand}">
-				<StackPanel Orientation="Horizontal" Spacing="5">
-					<PathIcon Data="{StaticResource people_community_regular}" Width="20" Height="20"/>
-					<TextBlock Text="O Twórcach"/>
+			<Button Command="{Binding OpenAboutCommand}" Padding="10" MinHeight="45">
+				<StackPanel Orientation="Horizontal" Spacing="10">
+					<PathIcon Data="{StaticResource people_community_regular}" Width="25" Height="25"/>
+					<TextBlock Text="O Twórcach" FontSize="16" FontWeight="Bold"/>
 				</StackPanel>
 			</Button>
 		</StackPanel>
