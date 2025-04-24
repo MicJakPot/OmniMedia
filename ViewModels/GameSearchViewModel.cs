@@ -12,7 +12,9 @@ using Avalonia.Threading;
 using System.Web;
 using System.Reactive;
 using System.Reactive.Linq;
-using System.Linq; // <-- DODAJ TĘ LINIĘ
+using System.Linq;
+using System.Diagnostics;
+using OmniMedia.Database; // Potrzebne do AppDatabase
 
 namespace OmniMedia.ViewModels
 {
@@ -35,20 +37,40 @@ namespace OmniMedia.ViewModels
 
         public ReactiveCommand<Unit, Unit> SearchCommand { get; }
 
-        // TODO: Właściwość na zaznaczoną grę i Komenda do dodawania do kolekcji
+        // Właściwość na zaznaczoną grę na liście wyników
+        private SearchResultItemViewModel? _selectedGame;
+        public SearchResultItemViewModel? SelectedGame
+        {
+            get => _selectedGame;
+            set => this.RaiseAndSetIfChanged(ref _selectedGame, value);
+        }
 
-        private const string RawgApiKey = "ccd369cc710a46b2930caa85edadee4a"; // Mój prywatny klucz API
+        // NOWA KOMENDA: Komenda do dodawania zaznaczonej gry do kolekcji
+        public ReactiveCommand<Unit, Unit> AddToCollectionCommand { get; }
+
+
+        private const string RawgApiKey = "ccd369cc710a46b2930caa85edadee4a"; 
         private readonly HttpClient _httpClient = new HttpClient();
 
+        // Konstruktor ViewModelu
         public GameSearchViewModel()
         {
+            // Inicjalizacja komendy wyszukiwania
             SearchCommand = ReactiveCommand.CreateFromTask(PerformSearch,
                                                            this.WhenAnyValue(x => x.SearchQuery)
                                                                .Select(query => !string.IsNullOrWhiteSpace(query)));
+
+            // NOWA INICJALIZACJA KOMENDY: Dodaj do kolekcji
+            // Komenda będzie aktywna tylko, gdy SelectedGame nie jest null
+            AddToCollectionCommand = ReactiveCommand.CreateFromTask(PerformAddToCollection,
+                                                           this.WhenAnyValue(x => x.SelectedGame)
+                                                                .Select(selectedGame => selectedGame != null)); // Komenda aktywna, gdy coś jest zaznaczone
         }
 
+        // ... (metoda PerformSearch - pozostała bez zmian w tej modyfikacji) ...
         private async Task PerformSearch()
         {
+            // ... (Twoja istniejąca implementacja metody PerformSearch) ...
             SearchResults.Clear();
 
             var encodedQuery = HttpUtility.UrlEncode(SearchQuery);
@@ -76,16 +98,15 @@ namespace OmniMedia.ViewModels
                     {
                         foreach (var result in apiResponse.Results)
                         {
-                            var game = new Game // Tworzymy obiekt modelu Game
+                            var game = new Game
                             {
                                 Title = result.Name,
                                 Genre = result.Genres != null && result.Genres.Any() ? string.Join(", ", result.Genres.Select(g => g.Name)) : "N/A",
                                 Platform = result.Platforms != null && result.Platforms.Any() ? string.Join(", ", result.Platforms.Select(p => p.Platform.Name)) : "N/A",
                                 ThumbnailUrl = result.Background_image
                             };
-                            // Tworzymy ViewModel elementu listy, przekazując mu dane gry
                             var searchResultItem = new SearchResultItemViewModel(game);
-                            SearchResults.Add(searchResultItem); // Dodajemy ViewModel do kolekcji wyników
+                            SearchResults.Add(searchResultItem);
                         }
                         System.Diagnostics.Debug.WriteLine($"[GameSearchViewModel] Dodano {SearchResults.Count} wyników do listy.");
                     });
@@ -109,7 +130,48 @@ namespace OmniMedia.ViewModels
             }
         }
 
-        // POMOCNICZE KLASY DO DESERIALIZACJI JSON
+
+        // NOWA METODA: Wykonuje logikę dodawania zaznaczonej gry do bazy danych
+        private async Task PerformAddToCollection()
+        {
+            // Sprawdzamy, czy jakaś gra jest zaznaczona
+            if (SelectedGame?.GameData != null)
+            {
+                Debug.WriteLine($"[GameSearchViewModel] Próba dodania do kolekcji gry: {SelectedGame.GameData.Title}");
+
+                try
+                {
+                    // Wywołujemy metodę zapisu do bazy danych
+                    int result = await App.Database.SaveGameAsync(SelectedGame.GameData);
+
+                    Debug.WriteLine($"[GameSearchViewModel] Zapisano grę do bazy danych. Rezultat: {result}");
+
+                    // TODO: Poinformuj użytkownika o sukcesie (np. wyświetl komunikat w UI)
+                    // Przykładowo (wymagałoby dodania właściwości tekstowej w ViewModelu i kontrolki w View)
+                    // StatusMessage = $"Dodano '{SelectedGame.GameData.Title}' do kolekcji.";
+
+
+                    // TODO: Zaktualizuj widok kolekcji (aby nowo dodana gra była widoczna po jego otwarciu)
+                    // To wymaga mechanizmu komunikacji między ViewModelami (np. MessageBus)
+                    // Na razie komunikat debugowania
+                    Debug.WriteLine($"[GameSearchViewModel] Gra '{SelectedGame.GameData.Title}' dodana do bazy. Widok kolekcji wymaga odświeżenia przy otwarciu.");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[GameSearchViewModel] Błąd podczas zapisywania gry do bazy: {ex.Message}");
+                    // TODO: Poinformuj użytkownika o błędzie zapisu
+                    // Przykładowo:
+                    // StatusMessage = $"Błąd zapisu gry '{SelectedGame.GameData.Title}': {ex.Message}";
+                }
+            }
+            else
+            {
+                Debug.WriteLine("[GameSearchViewModel] Próba dodania do kolekcji, ale żadna gra nie jest zaznaczona.");
+            }
+        }
+
+
+        // POMOCNICZE KLASY DO DESERIALIZACJI JSON (pozostają bez zmian)
         public class GameApiResponse
         {
             [JsonPropertyName("results")]

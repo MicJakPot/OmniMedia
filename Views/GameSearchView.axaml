@@ -15,17 +15,17 @@
 	<StackPanel Spacing="10" Margin="10">
 		<StackPanel Orientation="Horizontal" Spacing="5">
 			<TextBox Watermark="Wpisz tytuł gry..." Text="{Binding SearchQuery, Mode=TwoWay}" MinWidth="200"/>
-
 			<Button Content="Szukaj" Command="{Binding SearchCommand}"/>
 		</StackPanel>
 
-		<ListBox ItemsSource="{Binding SearchResults}" Height="300">
+		<ListBox ItemsSource="{Binding SearchResults}" Height="300"
+                 SelectedItem="{Binding SelectedGame, Mode=TwoWay}">
 			<ListBox.ItemTemplate>
 				<DataTemplate x:DataType="vm:SearchResultItemViewModel">
 					<StackPanel Orientation="Horizontal" Spacing="10" Margin="5">
 						<Image Source="{Binding Thumbnail}"
-                               Width="50" Height="70"
-                               Stretch="UniformToFill"/>
+								Width="50" Height="70"
+								Stretch="UniformToFill"/>
 						<StackPanel Orientation="Vertical" Spacing="2">
 							<TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="14"/>
 							<TextBlock Text="{Binding Genre}" FontSize="12"/>
@@ -35,5 +35,11 @@
 				</DataTemplate>
 			</ListBox.ItemTemplate>
 		</ListBox>
+
+		<Button Content="Dodaj do kolekcji"
+                HorizontalAlignment="Center"
+                Command="{Binding AddToCollectionCommand}"
+                Padding="10"/>
+
 	</StackPanel>
 </UserControl>
