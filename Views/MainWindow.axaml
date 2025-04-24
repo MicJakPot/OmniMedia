@@ -1,0 +1,84 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:OmniMedia.ViewModels"
+        xmlns:icons="using:OmniMedia.Assets"
+        xmlns:iconPacks="using:Avalonia.IconPacks"
+        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
+        x:Class="OmniMedia.Views.MainWindow"
+        Title="OmniMedia"
+        x:DataType="vm:MainWindowViewModel">
+
+	<Design.DataContext>
+		<vm:MainWindowViewModel/>
+	</Design.DataContext>
+
+	<Grid ColumnDefinitions="250,*" RowDefinitions="*,Auto">
+		<StackPanel Grid.Row="0" Grid.Column="0" Spacing="10" Margin="10" VerticalAlignment="Top">
+			<Button HorizontalAlignment="Stretch" Command="{Binding OpenCollectionCommand}">
+				<StackPanel Orientation="Horizontal" Spacing="5">
+					<PathIcon Data="{StaticResource search_square_regular}" Width="20" Height="20"/>
+					<TextBlock Text="Przeglądaj swoją Kolekcję"/>
+				</StackPanel>
+			</Button>
+
+			<Button HorizontalAlignment="Stretch" Command="{Binding OpenGameSearchCommand}">
+				<StackPanel Orientation="Horizontal" Spacing="5">
+					<PathIcon Data="{StaticResource games_regular}" Width="20" Height="20"/>
+					<TextBlock Text="Szukaj Gry"/>
+				</StackPanel>
+			</Button>
+
+			<Button HorizontalAlignment="Stretch" Command="{Binding OpenMusicSearchCommand}">
+				<StackPanel Orientation="Horizontal" Spacing="5">
+					<PathIcon Data="{StaticResource speaker_edit_regular}" Width="20" Height="20"/>
+					<TextBlock Text="Szukaj Muzyki"/>
+				</StackPanel>
+			</Button>
+
+			<Button HorizontalAlignment="Stretch" Command="{Binding OpenMovieSearchCommand}">
+				<StackPanel Orientation="Horizontal" Spacing="5">
+					<PathIcon Data="{StaticResource movies_and_tv_regular}" Width="20" Height="20"/>
+					<TextBlock Text="Szukaj Filmów"/>
+				</StackPanel>
+			</Button>
+		</StackPanel>
+
+		<Border Grid.Row="0" Grid.Column="1" Margin="10" BorderBrush="Gray" BorderThickness="1">
+			<Image Source="avares://OmniMedia/Assets/OmniMedia.jpg"
+                   Stretch="Uniform"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+		</Border>
+
+		<StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="10" Margin="10" HorizontalAlignment="Center">
+			<Button Command="{Binding ExportDatabaseCommand}">
+				<StackPanel Orientation="Horizontal" Spacing="5">
+					<PathIcon Data="{StaticResource window_new_regular}" Width="20" Height="20"/>
+					<TextBlock Text="Eksportuj Bazę"/>
+				</StackPanel>
+			</Button>
+
+			<Button Command="{Binding ImportDatabaseCommand}">
+				<StackPanel Orientation="Horizontal" Spacing="5">
+					<PathIcon Data="{StaticResource table_add_regular}" Width="20" Height="20"/>
+					<TextBlock Text="Importuj Bazę"/>
+				</StackPanel>
+			</Button>
+
+			<Button Command="{Binding OpenSettingsCommand}">
+				<StackPanel Orientation="Horizontal" Spacing="5">
+					<PathIcon Data="{StaticResource launcher_settings_regular}" Width="20" Height="20"/>
+					<TextBlock Text="Ustawienia"/>
+				</StackPanel>
+			</Button>
+
+			<Button Command="{Binding OpenAboutCommand}">
+				<StackPanel Orientation="Horizontal" Spacing="5">
+					<PathIcon Data="{StaticResource people_community_regular}" Width="20" Height="20"/>
+					<TextBlock Text="O Twórcach"/>
+				</StackPanel>
+			</Button>
+		</StackPanel>
+	</Grid>
+</Window>
