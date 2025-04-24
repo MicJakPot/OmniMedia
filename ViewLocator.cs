@@ -11,6 +11,7 @@ namespace OmniMedia
     public class ViewLocator : IDataTemplate
 
     {
+
         public Control? Build(object? param)
 
         {
@@ -21,9 +22,13 @@ namespace OmniMedia
 
             var name = param.GetType().FullName!.Replace("ViewModel", "View", StringComparison.Ordinal);
 
+
             var type = Type.GetType(name);
 
+
             if (type != null)
+
+
 
             {
 
@@ -34,6 +39,7 @@ namespace OmniMedia
             return new TextBlock { Text = "Not Found: " + name };
 
         }
+
         public bool Match(object? data)
 
         {

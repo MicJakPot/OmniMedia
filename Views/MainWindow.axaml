@@ -9,7 +9,6 @@
         x:Class="OmniMedia.Views.MainWindow"
         Title="OmniMedia"
         x:DataType="vm:MainWindowViewModel">
-
 	<Design.DataContext>
 		<vm:MainWindowViewModel/>
 	</Design.DataContext>
@@ -22,21 +21,18 @@
 					<TextBlock Text="Przeglądaj swoją Kolekcję" FontSize="16" FontWeight="Bold"/>
 				</StackPanel>
 			</Button>
-
 			<Button HorizontalAlignment="Stretch" Command="{Binding OpenGameSearchCommand}" Padding="10" MinHeight="45">
 				<StackPanel Orientation="Horizontal" Spacing="10">
 					<PathIcon Data="{StaticResource games_regular}" Width="25" Height="25"/>
 					<TextBlock Text="Szukaj Gry" FontSize="16" FontWeight="Bold"/>
 				</StackPanel>
 			</Button>
-
 			<Button HorizontalAlignment="Stretch" Command="{Binding OpenMusicSearchCommand}" Padding="10" MinHeight="45">
 				<StackPanel Orientation="Horizontal" Spacing="10">
 					<PathIcon Data="{StaticResource speaker_edit_regular}" Width="25" Height="25"/>
 					<TextBlock Text="Szukaj Muzyki" FontSize="16" FontWeight="Bold" />
 				</StackPanel>
 			</Button>
-
 			<Button HorizontalAlignment="Stretch" Command="{Binding OpenMovieSearchCommand}" Padding="10" MinHeight="45">
 				<StackPanel Orientation="Horizontal" Spacing="10">
 					<PathIcon Data="{StaticResource movies_and_tv_regular}" Width="25" Height="25"/>
@@ -46,10 +42,10 @@
 		</StackPanel>
 
 		<Border Grid.Row="0" Grid.Column="1" Margin="10" BorderBrush="Gray" BorderThickness="1">
-			<Image Source="avares://OmniMedia/Assets/OmniMedia.jpg"
-                   Stretch="Uniform"
-                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			<ContentControl Content="{Binding CurrentContent}" >
+			</ContentControl>
 		</Border>
+
 
 		<StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="10" Margin="10" HorizontalAlignment="Right">
 			<Button Command="{Binding ExportDatabaseCommand}" Padding="10" MinHeight="45">
@@ -58,21 +54,18 @@
 					<TextBlock Text="Eksportuj Bazę" FontSize="16" FontWeight="Bold"/>
 				</StackPanel>
 			</Button>
-
 			<Button Command="{Binding ImportDatabaseCommand}" Padding="10" MinHeight="45">
 				<StackPanel Orientation="Horizontal" Spacing="10">
 					<PathIcon Data="{StaticResource table_add_regular}" Width="25" Height="25"/>
 					<TextBlock Text="Importuj Bazę" FontSize="16" FontWeight="Bold"/>
 				</StackPanel>
 			</Button>
-
 			<Button Command="{Binding OpenSettingsCommand}" Padding="10" MinHeight="45">
 				<StackPanel Orientation="Horizontal" Spacing="10">
 					<PathIcon Data="{StaticResource launcher_settings_regular}" Width="25" Height="25"/>
 					<TextBlock Text="Ustawienia" FontSize="16" FontWeight="Bold"/>
 				</StackPanel>
 			</Button>
-
 			<Button Command="{Binding OpenAboutCommand}" Padding="10" MinHeight="45">
 				<StackPanel Orientation="Horizontal" Spacing="10">
 					<PathIcon Data="{StaticResource people_community_regular}" Width="25" Height="25"/>

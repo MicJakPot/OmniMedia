@@ -3,7 +3,7 @@ using ReactiveUI;
 using System;
 using System.Reactive;
 using System.Threading.Tasks;
-using OmniMedia.Views; // Potrzebne do odwołania do CollectionWindow
+using OmniMedia.Views; // Potrzebne do odwołania do CollectionWindow i GameSearchWindow
 using System.Diagnostics; // Pozostawione na potrzeby innych komunikatów
 
 namespace OmniMedia.ViewModels
@@ -36,80 +36,75 @@ namespace OmniMedia.ViewModels
         // Komenda dla przycisku "O Twórcach"
         public ReactiveCommand<Unit, Unit> OpenAboutCommand { get; }
 
-        // Właściwość do zarządzania wyświetlaną zawartością w głównym oknie (jeśli używana)
-        private ViewModelBase? _currentContent; // Używamy ViewModelBase? jeśli może być null
+        // Właściwość do zarządzania wyświetlaną zawartością w głównym oknie (już nie używana do Szukaj Gry)
+        private ViewModelBase? _currentContent;
         public ViewModelBase? CurrentContent
         {
             get => _currentContent;
             set => this.RaiseAndSetIfChanged(ref _currentContent, value);
         }
 
+        // USUNIĘTO: Tymczasowa właściwość TestDataContext
 
         public MainWindowViewModel()
         {
             // Inicjalizacja komend
             // Logika nawigacji do odpowiednich widoków/okien
 
-            // Zmieniona implementacja OpenCollectionCommand - otwiera nowe okno CollectionWindow
-            OpenCollectionCommand = ReactiveCommand.Create(() => // Zmieniono na Create, bo Show() nie jest asynchroniczne
+            // Implementacja OpenCollectionCommand - otwiera nowe okno CollectionWindow
+            OpenCollectionCommand = ReactiveCommand.Create(() =>
             {
-                // Tworzymy nową instancję CollectionWindow
                 var collectionWindow = new CollectionWindow
                 {
-                    // Ustawiamy DataContext nowego okna na nowy ViewModel CollectionWindowViewModel
                     DataContext = new CollectionWindowViewModel()
                 };
-                // Wyświetlamy nowe okno
                 collectionWindow.Show();
-
-                System.Diagnostics.Debug.WriteLine("Kliknięto: Przeglądaj swoją Kolekcję. Otwarto CollectionWindow."); // Opcjonalny komunikat
+                Debug.WriteLine("Kliknięto: Przeglądaj swoją Kolekcję. Otwarto CollectionWindow.");
             });
 
-            // Implementacja OpenGameSearchCommand - teraz ustawia CurrentContent w MainWindowViewModel
+            // Zmieniona implementacja OpenGameSearchCommand - otwiera nowe okno GameSearchWindow
             OpenGameSearchCommand = ReactiveCommand.Create(() =>
             {
-                // TODO: Zaimplementuj logikę otwierania widoku wyszukiwania gier w głównym oknie
-                // Ustawienie CurrentContent na GameSearchViewModel
-                CurrentContent = new GameSearchViewModel();
-                System.Diagnostics.Debug.WriteLine("Kliknięto: Szukaj Gry. Ustawiono GameSearchViewModel jako CurrentContent.");
+                // Tworzymy nową instancję GameSearchWindow
+                var gameSearchWindow = new GameSearchWindow
+                {
+                    // Ustawiamy DataContext nowego okna na nowy ViewModel GameSearchViewModel
+                    DataContext = new GameSearchViewModel()
+                };
+                // Wyświetlamy nowe okno
+                gameSearchWindow.Show();
+                Debug.WriteLine("Kliknięto: Szukaj Gry. Otwarto GameSearchWindow.");
             });
 
 
-            // Przykładowe inicjalizacje pozostałych komend (możesz dostosować)
+            // Przykładowe inicjalizacje pozostałych komend
             OpenMusicSearchCommand = ReactiveCommand.Create(() => {
-                // TODO: Logika otwierania widoku wyszukiwania muzyki
-                System.Diagnostics.Debug.WriteLine("Kliknięto: Szukaj Muzyki");
+                Debug.WriteLine("Kliknięto: Szukaj Muzyki");
             });
 
             OpenMovieSearchCommand = ReactiveCommand.Create(() => {
-                // TODO: Logika otwierania widoku wyszukiwania filmów
-                System.Diagnostics.Debug.WriteLine("Kliknięto: Szukaj Filmów");
+                Debug.WriteLine("Kliknięto: Szukaj Filmów");
             });
 
             ExportDatabaseCommand = ReactiveCommand.Create(() => {
-                // TODO: Logika eksportu bazy danych
-                System.Diagnostics.Debug.WriteLine("Kliknięto: Eksportuj Bazę");
+                Debug.WriteLine("Kliknięto: Eksportuj Bazę");
             });
 
             ImportDatabaseCommand = ReactiveCommand.Create(() => {
-                // TODO: Logika importu bazy danych
-                System.Diagnostics.Debug.WriteLine("Kliknięto: Importuj Bazę");
+                Debug.WriteLine("Kliknięto: Importuj Bazę");
             });
 
             OpenSettingsCommand = ReactiveCommand.Create(() => {
-                // TODO: Logika otwierania widoku ustawień
-                System.Diagnostics.Debug.WriteLine("Kliknięto: Ustawienia");
+                Debug.WriteLine("Kliknięto: Ustawienia");
             });
 
             OpenAboutCommand = ReactiveCommand.Create(() => {
-                // TODO: Logika otwierania widoku "O Twórcach"
-                System.Diagnostics.Debug.WriteLine("Kliknięto: O Twórcach");
+                Debug.WriteLine("Kliknięto: O Twórcach");
             });
 
-
             // Opcjonalnie: Ustaw początkową zawartość prawej części okna głównego przy starcie
-            // np. pusty ViewModel, widok powitalny, lub domyślny widok kolekcji (jeśli zdecydujesz się na wyświetlanie kolekcji w głównym oknie)
-            // CurrentContent = new SomeDefaultViewModel();
+            // Np. możesz ustawić null, aby obszar był pusty, lub inny domyślny widok
+            CurrentContent = null; // Ustawiamy na null, aby nie wyświetlać nic domyślnie w ContentControl
         }
     }
 }
