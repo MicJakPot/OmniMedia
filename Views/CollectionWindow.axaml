@@ -1,0 +1,28 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:OmniMedia.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+        x:Class="OmniMedia.Views.CollectionWindow"
+        Title="Przeglądaj Kolekcję"
+        x:DataType="vm:CollectionWindowViewModel">
+
+	<Design.DataContext>
+		<vm:CollectionWindowViewModel />
+	</Design.DataContext>
+
+	<Grid RowDefinitions="Auto,*">
+		<StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10" Margin="10" HorizontalAlignment="Center">
+			<Button Content="Kolekcja Gier" Command="{Binding OpenGameCollectionCommand}"/>
+			<Button Content="Kolekcja Muzyki" Command="{Binding OpenMusicCollectionCommand}"/>
+			<Button Content="Kolekcja Filmów" Command="{Binding OpenMovieCollectionCommand}"/>
+		</StackPanel>
+
+		<Border Grid.Row="1" Margin="10" BorderBrush="LightGray" BorderThickness="1">
+			<TextBlock Text="Obszar na miniaturki ostatnio dodanych treści"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       IsVisible="True"/>
+		</Border>
+	</Grid>
+</Window>
