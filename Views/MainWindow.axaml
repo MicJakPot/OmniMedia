@@ -5,14 +5,21 @@
         xmlns:vm="using:OmniMedia.ViewModels"
         xmlns:icons="using:OmniMedia.Assets"
         xmlns:iconPacks="using:Avalonia.IconPacks"
-        mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
+        xmlns:imaging="using:Avalonia.Media.Imaging"  mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
         x:Class="OmniMedia.Views.MainWindow"
         Title="OmniMedia"
         x:DataType="vm:MainWindowViewModel">
+
 	<Design.DataContext>
 		<vm:MainWindowViewModel/>
 	</Design.DataContext>
 
+	<Window.DataTemplates>
+		<DataTemplate DataType="imaging:Bitmap">
+			<Image Source="{Binding}"        Stretch="Uniform"       HorizontalAlignment="Center"
+                   VerticalAlignment="Center"/>
+		</DataTemplate>
+	</Window.DataTemplates>
 	<Grid ColumnDefinitions="300,*" RowDefinitions="*,Auto">
 		<StackPanel Grid.Row="0" Grid.Column="0" Spacing="25" Margin="15" VerticalAlignment="Top">
 			<Button HorizontalAlignment="Stretch" Command="{Binding OpenCollectionCommand}" Padding="15" MinHeight="45">
@@ -45,7 +52,6 @@
 			<ContentControl Content="{Binding CurrentContent}" >
 			</ContentControl>
 		</Border>
-
 
 		<StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="10" Margin="10" HorizontalAlignment="Right">
 			<Button Command="{Binding ExportDatabaseCommand}" Padding="10" MinHeight="45">

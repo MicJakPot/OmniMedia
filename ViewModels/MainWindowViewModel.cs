@@ -5,6 +5,11 @@ using System.Reactive;
 using System.Threading.Tasks;
 using OmniMedia.Views; // Potrzebne do odwołania do CollectionWindow i GameSearchWindow
 using System.Diagnostics; // Pozostawione na potrzeby innych komunikatów
+using Avalonia.Media.Imaging; // Potrzebne do Bitmap
+using System.IO; // Potrzebne do Stream
+using Avalonia.Platform; // Potrzebne do AssetLoader
+using System.Reflection; // Potrzebne do Assembly
+
 
 namespace OmniMedia.ViewModels
 {
@@ -36,15 +41,18 @@ namespace OmniMedia.ViewModels
         // Komenda dla przycisku "O Twórcach"
         public ReactiveCommand<Unit, Unit> OpenAboutCommand { get; }
 
-        // Właściwość do zarządzania wyświetlaną zawartością w głównym oknie (już nie używana do Szukaj Gry)
-        private ViewModelBase? _currentContent;
-        public ViewModelBase? CurrentContent
+        // Właściwość do zarządzania wyświetlaną zawartością w głównym oknie
+        // Może być ViewModelm widoku (np. GameCollectionViewModel) lub innym obiektem (np. Bitmap dla logo)
+        private object? _currentContent; // Zmieniono typ na object?, aby mógł przechowywać Bitmap
+        public object? CurrentContent
         {
             get => _currentContent;
-            set => this.RaiseAndSetIfChanged(ref _currentContent, value);
+            private set => this.RaiseAndSetIfChanged(ref _currentContent, value);
         }
 
-        // USUNIĘTO: Tymczasowa właściwość TestDataContext
+        // DODANE POLE NA OBRAZEK LOGO
+        private Bitmap? _logoImage;
+
 
         public MainWindowViewModel()
         {
@@ -56,55 +64,102 @@ namespace OmniMedia.ViewModels
             {
                 var collectionWindow = new CollectionWindow
                 {
-                    DataContext = new CollectionWindowViewModel()
+                    DataContext = new CollectionWindowViewModel() // Tworzymy ViewModel dla okna CollectionWindow
                 };
-                collectionWindow.Show();
+                collectionWindow.Show(); // Wyświetlamy nowe okno CollectionWindow
                 Debug.WriteLine("Kliknięto: Przeglądaj swoją Kolekcję. Otwarto CollectionWindow.");
+                // Po otwarciu nowego okna, możemy opcjonalnie powrócić do logo w oknie głównym
+                // CurrentContent = _logoImage; // Opcjonalnie, jeśli chcesz powrócić do logo
             });
 
-            // Zmieniona implementacja OpenGameSearchCommand - otwiera nowe okno GameSearchWindow
+            // Implementacja OpenGameSearchCommand - otwiera nowe okno GameSearchWindow
             OpenGameSearchCommand = ReactiveCommand.Create(() =>
             {
-                // Tworzymy nową instancję GameSearchWindow
                 var gameSearchWindow = new GameSearchWindow
                 {
-                    // Ustawiamy DataContext nowego okna na nowy ViewModel GameSearchViewModel
-                    DataContext = new GameSearchViewModel()
+                    DataContext = new GameSearchViewModel() // Tworzymy ViewModel dla okna GameSearchWindow
                 };
-                // Wyświetlamy nowe okno
-                gameSearchWindow.Show();
+                gameSearchWindow.Show(); // Wyświetlamy nowe okno GameSearchWindow
                 Debug.WriteLine("Kliknięto: Szukaj Gry. Otwarto GameSearchWindow.");
+                // Po otwarciu nowego okna, możemy opcjonalnie powrócić do logo w oknie głównym
+                // CurrentContent = _logoImage; // Opcjonalnie, jeśli chcesz powrócić do logo
             });
 
 
             // Przykładowe inicjalizacje pozostałych komend
             OpenMusicSearchCommand = ReactiveCommand.Create(() => {
-                Debug.WriteLine("Kliknięto: Szukaj Muzyki");
+                Debug.WriteLine("Kliknięto: Szukaj Muzyki (TODO)");
+                // TODO: Implementacja otwierania okna wyszukiwania muzyki
+                // Opcjonalnie powrót do logo: CurrentContent = _logoImage;
             });
 
             OpenMovieSearchCommand = ReactiveCommand.Create(() => {
-                Debug.WriteLine("Kliknięto: Szukaj Filmów");
+                Debug.WriteLine("Kliknięto: Szukaj Filmów (TODO)");
+                // TODO: Implementacja otwierania okna wyszukiwania filmów
+                // Opcjonalnie powrót do logo: CurrentContent = _logoImage;
             });
 
             ExportDatabaseCommand = ReactiveCommand.Create(() => {
-                Debug.WriteLine("Kliknięto: Eksportuj Bazę");
+                Debug.WriteLine("Kliknięto: Eksportuj Bazę (TODO)");
+                // TODO: Implementacja eksportu bazy danych
+                // Opcjonalnie powrót do logo: CurrentContent = _logoImage;
             });
 
             ImportDatabaseCommand = ReactiveCommand.Create(() => {
-                Debug.WriteLine("Kliknięto: Importuj Bazę");
+                Debug.WriteLine("Kliknięto: Importuj Bazę (TODO)");
+                // TODO: Implementacja importu bazy danych
+                // Opcjonalnie powrót do logo: CurrentContent = _logoImage;
             });
 
             OpenSettingsCommand = ReactiveCommand.Create(() => {
-                Debug.WriteLine("Kliknięto: Ustawienia");
+                Debug.WriteLine("Kliknięto: Ustawienia (TODO)");
+                // TODO: Implementacja otwierania okna ustawień/widoku
+                // Opcjonalnie powrót do logo: CurrentContent = _logoImage;
             });
 
             OpenAboutCommand = ReactiveCommand.Create(() => {
-                Debug.WriteLine("Kliknięto: O Twórcach");
+                Debug.WriteLine("Kliknięto: O Twórcach (TODO)");
+                // TODO: Implementacja otwierania okna "O twórcach"/widoku
+                // Opcjonalnie powrót do logo: CurrentContent = _logoImage;
             });
 
-            // Opcjonalnie: Ustaw początkową zawartość prawej części okna głównego przy starcie
-            // Np. możesz ustawić null, aby obszar był pusty, lub inny domyślny widok
-            CurrentContent = null; // Ustawiamy na null, aby nie wyświetlać nic domyślnie w ContentControl
+            // DODANE: Wczytaj obrazek logo i ustaw go jako początkową zawartość (domyślny widok)
+            _logoImage = LoadLogoImage();
+            CurrentContent = _logoImage; // Ustaw logo jako domyślną zawartość przy starcie aplikacji
         }
+
+        // Metoda prywatna do ładowania obrazka logo z zasobów
+        private Bitmap? LoadLogoImage()
+        {
+            // Ścieżka do obrazka w zasobach Avaloni. 
+            var assetPath = "avares://OmniMedia/Assets/Images/OmniMediaMainLogo.png"; 
+
+            try
+            {
+                // AssetLoader.Open wymaga Uri.
+                var uri = new Uri(assetPath);
+                // Sprawdzamy, czy zasób istnieje przed próbą otwarcia
+                if (AssetLoader.Exists(uri))
+                {
+                    using (var stream = AssetLoader.Open(uri))
+                    {
+                        return new Bitmap(stream);
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine($"[MainWindowViewModel] Zasób obrazka logo nie znaleziony: {assetPath}");
+                    return null; // Zwróć null, jeśli zasób nie istnieje
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[MainWindowViewModel] Błąd ładowania obrazka logo z zasobów ({assetPath}): {ex.Message}");
+                return null; // Zwróć null w przypadku błędu podczas ładowania
+            }
+        }
+
+        // TODO: Możesz dodać inne metody pomocnicze lub logikę ViewModelu
+
     }
 }
