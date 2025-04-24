@@ -9,6 +9,7 @@ namespace OmniMedia.Models // Przestrzeń nazw dla modeli danych
     public class Game
     {
         // Unikalny identyfikator gry (przyda się w bazie danych)
+        [PrimaryKey, AutoIncrement] 
         public int Id { get; set; }
 
         // Podstawowe informacje o grze, wszystkie sgtringi mogą być nullowalne

@@ -118,9 +118,8 @@ namespace OmniMedia.ViewModels
                             SelectedGame = null; // Odznaczamy element po usunięciu
                         });
 
-                        // TODO: Poinformuj użytkownika o sukcesie usunięcia (np. wyświetl komunikat w UI)
-                        Debug.WriteLine($"[GameCollectionViewModel] Gra '{SelectedGame.Title}' pomyślnie usunięta.");
-
+                        // Używamy operatora ?. i ?? aby bezpiecznie odczytać Title lub wyświetlić "Usunięta"
+                        Debug.WriteLine($"[GameCollectionViewModel] Gra '{SelectedGame?.Title ?? "Usunięta"}' pomyślnie usunięta.");
                     }
                     else
                     {
@@ -147,3 +146,4 @@ namespace OmniMedia.ViewModels
 
     }
 }
+
