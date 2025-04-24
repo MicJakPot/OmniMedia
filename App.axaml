@@ -10,5 +10,5 @@
 	<Application.Styles>
 		<FluentTheme />
 		<StyleInclude Source="avares://OmniMedia/Assets/Icons.axaml" />
-		</Application.Styles>
+	</Application.Styles>
 </Application>
