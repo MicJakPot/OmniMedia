@@ -4,37 +4,37 @@ using OmniMedia.Models;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks; // Potrzebne do Task
-using Avalonia.Threading; // Potrzebne do Dispatcher.UIThread
-using System.Diagnostics; // Potrzebne do Debug.WriteLine
-using OmniMedia.Database; // Potrzebne do AppDatabase
-using System.Reactive; // Potrzebne do Unit
-using System.Reactive.Linq; // Potrzebne do Select
-using System.Linq; // Potrzebne do FirstOrDefault
+using System.Threading.Tasks;
+using Avalonia.Threading;
+using System.Diagnostics;
+using OmniMedia.Database;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Linq;
 
 namespace OmniMedia.ViewModels
 {
     // ViewModel dla widoku Kolekcji Gier
     public class GameCollectionViewModel : ViewModelBase
     {
-        // Właściwość na kolekcję gier do wyświetlenia
-        private ObservableCollection<Game> _games = new ObservableCollection<Game>();
-        public ObservableCollection<Game> Games
+        // Właściwość na kolekcję gier do wyświetlenia (teraz ViewModeli elementów)
+        private ObservableCollection<CollectionGameItemViewModel> _games = new ObservableCollection<CollectionGameItemViewModel>();
+        public ObservableCollection<CollectionGameItemViewModel> Games
         {
             get => _games;
             set => this.RaiseAndSetIfChanged(ref _games, value);
         }
 
-        // NOWA WŁAŚCIWOŚĆ: Właściwość na zaznaczoną grę w kolekcji
-        // Typem jest Game, bo to obiekty Game są w kolekcji Games
-        private Game? _selectedGame;
-        public Game? SelectedGame
+        private CollectionGameItemViewModel? _selectedGame;
+        public CollectionGameItemViewModel? SelectedGame
         {
             get => _selectedGame;
-            set => this.RaiseAndSetIfChanged(ref _selectedGame, value);
+            set
+            {
+                Debug.WriteLine($"[GameCollectionViewModel] Właściwość SelectedGame ustawiona na: {value?.Title ?? "null"} (ID: {value?.Id.ToString() ?? "null"})");
+                this.RaiseAndSetIfChanged(ref _selectedGame, value);
+            }
         }
-
-        // NOWA KOMENDA: Komenda do usuwania zaznaczonej gry z kolekcji
         public ReactiveCommand<Unit, Unit> RemoveGameCommand { get; }
 
 
@@ -60,79 +60,85 @@ namespace OmniMedia.ViewModels
         }
 
         // Metoda asynchroniczna do ładowania gier z bazy danych
-        private async Task LoadGamesAsync()
+        private async Task LoadGamesAsync() // Poprawiona nazwa i brak komentarza TODO z usuwania
         {
             try
             {
                 Debug.WriteLine("[GameCollectionViewModel] Rozpoczynam ładowanie gier z bazy danych.");
                 var gamesFromDb = await App.Database.GetGamesAsync(); // Pobierz gry z bazy
 
-                // Upewniamy się, że aktualizacja ObservableCollection odbywa się w wątku UI
+                Debug.WriteLine($"[AppDatabase] Zakończono pobieranie. Znaleziono {gamesFromDb.Count} gier. ID pierwszych 5: {string.Join(", ", gamesFromDb.Take(5).Select(g => $"{g.Title}: {g.Id}"))}");
+
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     Games.Clear(); // Wyczyść obecną kolekcję
                     foreach (var game in gamesFromDb)
                     {
-                        Games.Add(game); // Dodaj gry pobrane z bazy
+                        // Tworzymy ViewModel elementu listy dla każdej gry pobranej z bazy
+                        var collectionItem = new CollectionGameItemViewModel(game);
+                        Games.Add(collectionItem); // Dodaj ViewModel do kolekcji Games
                     }
-                    Debug.WriteLine($"[GameCollectionViewModel] Załadowano {Games.Count} gier z bazy danych.");
+                    Debug.WriteLine($"[GameCollectionViewModel] Załadowano {Games.Count} gier do listy w UI.");
                 });
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"[GameCollectionViewModel] Błąd podczas ładowania gier z bazy danych: {ex.Message}");
-                // TODO: Poinformuj użytkownika o błędzie
             }
         }
 
 
         // Metoda asynchroniczna do usuwania zaznaczonej gry z bazy danych
-        private async Task PerformRemoveGameAsync()
+        private async Task PerformRemoveGameAsync() // Upewnij się, że ta metoda jest TYLKO RAZ
         {
-            // Sprawdzamy, czy jakaś gra jest zaznaczona
             if (SelectedGame != null)
             {
-                Debug.WriteLine($"[GameCollectionViewModel] Próba usunięcia gry z kolekcji: {SelectedGame.Title}");
+                Debug.WriteLine($"[GameCollectionViewModel] Próba usunięcia gry: {SelectedGame.Title} (ID: {SelectedGame.Id}) z kolekcji.");
 
                 try
                 {
-                    // WYWOŁAJ METODĘ USUWANIA Z BAZY DANYCH
-                    // Używamy metody DeleteGameAsync, którą dodaliśmy w AppDatabase.cs
-                    int result = await App.Database.DeleteGameAsync(SelectedGame);
+                    // Wywołaj metodę usuwania z bazy danych, przekazując obiekt Game z ViewModelu elementu
+                    int result = await App.Database.DeleteGameAsync(SelectedGame.GameData); // POPRAWIONE: UŻYJ SelectedGame.GameData
 
                     Debug.WriteLine($"[GameCollectionViewModel] Wynik usuwania gry z bazy: {result}");
 
-                    // Jeśli usuwanie z bazy się powiodło (result > 0), usuń grę z ObservableCollection Games
                     if (result > 0)
                     {
                         await Dispatcher.UIThread.InvokeAsync(() =>
                         {
-                            // Znajdujemy i usuwamy grę z kolekcji Games
-                            // Używamy Id do znalezienia gry, bo SelectedGame może być innym obiektem niż ten w kolekcji, ale ma to samo Id
-                            var gameToRemove = Games.FirstOrDefault(g => g.Id == SelectedGame.Id);
-                            if (gameToRemove != null)
+                            // Znajdujemy i usuwamy ViewModel elementu z kolekcji Games
+                            // Używamy Id zawartego obiektu Game
+                            var itemToRemove = Games.FirstOrDefault(item => item.GameData.Id == SelectedGame.GameData.Id);
+                            if (itemToRemove != null)
                             {
-                                Games.Remove(gameToRemove); // Usuń grę z listy wyświetlanej w UI
-                                Debug.WriteLine($"[GameCollectionViewModel] Usunięto grę '{gameToRemove.Title}' z listy w UI.");
+                                Games.Remove(itemToRemove); // Usuń ViewModel z listy wyświetlanej w UI
+
+                                // USUNIĘTO: Diagnostyczne odświeżenie powiązania (nie jest już potrzebne)
+                                // var currentGamesCollection = Games;
+                                // Games = null;
+                                // Games = currentGamesCollection;
+
+                                Debug.WriteLine($"[GameCollectionViewModel] Liczba gier w kolekcji Games po usunięciu: {Games.Count}");
+                                Debug.WriteLine($"[GameCollectionViewModel] Usunięto grę '{itemToRemove.Title}' (ID: {itemToRemove.Id}) z listy w UI.");
                             }
                             SelectedGame = null; // Odznaczamy element po usunięciu
                         });
 
-                        // Używamy operatora ?. i ?? aby bezpiecznie odczytać Title lub wyświetlić "Usunięta"
+                        // POPRAWIONE: Bezpieczne odczytanie Title po ustawieniu SelectedGame na null
                         Debug.WriteLine($"[GameCollectionViewModel] Gra '{SelectedGame?.Title ?? "Usunięta"}' pomyślnie usunięta.");
+
                     }
                     else
                     {
-                        Debug.WriteLine($"[GameCollectionViewModel] Nie udało się usunąć gry '{SelectedGame.Title}' z bazy danych (result był 0).");
-                        // TODO: Poinformuj użytkownika o błędzie/braku usunięcia
+                        // POPRAWIONE: Bezpieczne odczytanie Title i Id w komunikacie o błędzie
+                        Debug.WriteLine($"[GameCollectionViewModel] Nie udało się usunąć gry '{SelectedGame?.Title ?? "Nieznana"}' (ID: {SelectedGame?.Id.ToString() ?? "null"}) z bazy danych (result był 0).");
                     }
-
 
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"[GameCollectionViewModel] Błąd podczas usuwania gry z bazy: {ex.Message}");
-                    // TODO: Poinformuj użytkownika o błędzie
+                    // TODO: Poinformuj użytkownika o błędzie (np. wyświetl komunikat w UI)
                 }
             }
             else
@@ -146,4 +152,3 @@ namespace OmniMedia.ViewModels
 
     }
 }
-

@@ -7,25 +7,21 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="OmniMedia.Views.GameCollectionView"
              x:DataType="vm:GameCollectionViewModel">
-
 	<Design.DataContext>
 		<vm:GameCollectionViewModel />
 	</Design.DataContext>
-
 	<StackPanel Spacing="10" Margin="10">
 		<TextBlock Text="Widok Kolekcji Gier"
                    HorizontalAlignment="Center" FontWeight="Bold"/>
-
 		<Border BorderBrush="LightGray" BorderThickness="1" Height="300">
 			<ListBox ItemsSource="{Binding Games}"
-					 SelectedItem="{Binding SelectedGame, Mode=TwoWay}">
+                     SelectedItem="{Binding SelectedGame, Mode=TwoWay}">
 				<ListBox.ItemTemplate>
-					<DataTemplate x:DataType="models:Game">
+					<DataTemplate x:DataType="vm:CollectionGameItemViewModel">
 						<StackPanel Orientation="Horizontal" Spacing="10" Margin="5">
-							<Border Width="50" Height="70" BorderBrush="Gray" BorderThickness="1">
-								<TextBlock Text="Miniatura" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="10"/>
-							</Border>
-
+							<Image Source="{Binding Thumbnail}"
+                                   Width="50" Height="70"
+                                   Stretch="UniformToFill"/>
 							<StackPanel Orientation="Vertical" Spacing="2">
 								<TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="14"/>
 								<TextBlock Text="{Binding Genre}" FontSize="12"/>
@@ -36,11 +32,9 @@
 				</ListBox.ItemTemplate>
 			</ListBox>
 		</Border>
-
 		<Button Content="Usuń z kolekcji"
-				HorizontalAlignment="Center"
-				Command="{Binding RemoveGameCommand}"
-				Padding="10"/>
-
+                HorizontalAlignment="Center"
+                Command="{Binding RemoveGameCommand}"
+                Padding="10"/>
 	</StackPanel>
 </UserControl>
