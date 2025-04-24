@@ -3,7 +3,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:OmniMedia.ViewModels"
-			 xmlns:models="using:OmniMedia.Models"
+             xmlns:models="using:OmniMedia.Models"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="OmniMedia.Views.GameCollectionView"
              x:DataType="vm:GameCollectionViewModel">
@@ -13,11 +13,12 @@
 	</Design.DataContext>
 
 	<StackPanel Spacing="10" Margin="10">
-		<TextBlock Text="Widok Kolekcji Gier (Placeholder)"
+		<TextBlock Text="Widok Kolekcji Gier"
                    HorizontalAlignment="Center" FontWeight="Bold"/>
 
 		<Border BorderBrush="LightGray" BorderThickness="1" Height="300">
-			<ListBox ItemsSource="{Binding Games}">
+			<ListBox ItemsSource="{Binding Games}"
+					 SelectedItem="{Binding SelectedGame, Mode=TwoWay}">
 				<ListBox.ItemTemplate>
 					<DataTemplate x:DataType="models:Game">
 						<StackPanel Orientation="Horizontal" Spacing="10" Margin="5">
@@ -35,6 +36,11 @@
 				</ListBox.ItemTemplate>
 			</ListBox>
 		</Border>
+
+		<Button Content="Usuń z kolekcji"
+				HorizontalAlignment="Center"
+				Command="{Binding RemoveGameCommand}"
+				Padding="10"/>
 
 	</StackPanel>
 </UserControl>
