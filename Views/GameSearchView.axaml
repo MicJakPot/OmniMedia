@@ -21,11 +21,16 @@
 
 		<ListBox ItemsSource="{Binding SearchResults}" Height="300">
 			<ListBox.ItemTemplate>
-				<DataTemplate x:DataType="models:Game">
-					<StackPanel Orientation="Vertical">
-						<TextBlock Text="{Binding Title}" FontWeight="Bold"/>
-						<TextBlock Text="{Binding Genre}"/>
-						<TextBlock Text="{Binding Platform}"/>
+				<DataTemplate x:DataType="vm:SearchResultItemViewModel">
+					<StackPanel Orientation="Horizontal" Spacing="10" Margin="5">
+						<Image Source="{Binding Thumbnail}"
+                               Width="50" Height="70"
+                               Stretch="UniformToFill"/>
+						<StackPanel Orientation="Vertical" Spacing="2">
+							<TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="14"/>
+							<TextBlock Text="{Binding Genre}" FontSize="12"/>
+							<TextBlock Text="{Binding Platform}" FontSize="12"/>
+						</StackPanel>
 					</StackPanel>
 				</DataTemplate>
 			</ListBox.ItemTemplate>

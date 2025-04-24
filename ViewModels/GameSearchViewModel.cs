@@ -26,8 +26,8 @@ namespace OmniMedia.ViewModels
             set => this.RaiseAndSetIfChanged(ref _searchQuery, value);
         }
 
-        private ObservableCollection<Game> _searchResults = new ObservableCollection<Game>();
-        public ObservableCollection<Game> SearchResults
+        private ObservableCollection<SearchResultItemViewModel> _searchResults = new ObservableCollection<SearchResultItemViewModel>();
+        public ObservableCollection<SearchResultItemViewModel> SearchResults
         {
             get => _searchResults;
             set => this.RaiseAndSetIfChanged(ref _searchResults, value);
@@ -76,15 +76,16 @@ namespace OmniMedia.ViewModels
                     {
                         foreach (var result in apiResponse.Results)
                         {
-                            var game = new Game
+                            var game = new Game // Tworzymy obiekt modelu Game
                             {
                                 Title = result.Name,
-                                // Teraz Any() i Select() powinny działać
                                 Genre = result.Genres != null && result.Genres.Any() ? string.Join(", ", result.Genres.Select(g => g.Name)) : "N/A",
                                 Platform = result.Platforms != null && result.Platforms.Any() ? string.Join(", ", result.Platforms.Select(p => p.Platform.Name)) : "N/A",
                                 ThumbnailUrl = result.Background_image
                             };
-                            SearchResults.Add(game);
+                            // Tworzymy ViewModel elementu listy, przekazując mu dane gry
+                            var searchResultItem = new SearchResultItemViewModel(game);
+                            SearchResults.Add(searchResultItem); // Dodajemy ViewModel do kolekcji wyników
                         }
                         System.Diagnostics.Debug.WriteLine($"[GameSearchViewModel] Dodano {SearchResults.Count} wyników do listy.");
                     });
