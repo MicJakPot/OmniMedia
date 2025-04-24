@@ -1,6 +1,5 @@
 ﻿using ReactiveUI;
 using System.Collections.ObjectModel;
-using System.Reactive;
 using OmniMedia.Models;
 using System;
 using System.Collections.Generic;
@@ -9,26 +8,24 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Text.Json.Serialization;
+using Avalonia.Threading;
+using System.Web;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Linq; // <-- DODAJ TĘ LINIĘ
 
 namespace OmniMedia.ViewModels
 {
     // ViewModel dla funkcjonalności wyszukiwania gier
     public class GameSearchViewModel : ViewModelBase
     {
-        // TODO: ZASTĄP TEN PLACEHOLDER SWOIM KLUCZEM API RAWG
-        private const string RawgApiKey = "ccd369cc710a46b2930caa85edadee4a"; // <-- Wklejony mój klucz API
-
-        private readonly HttpClient _httpClient; // Klient HTTP do komunikacji z API
-
-        // Właściwość na zapytanie wyszukiwania
-        private string _searchQuery = string.Empty;
+        private string _searchQuery = "";
         public string SearchQuery
         {
             get => _searchQuery;
             set => this.RaiseAndSetIfChanged(ref _searchQuery, value);
         }
 
-        // Właściwość na listę wyników wyszukiwania
         private ObservableCollection<Game> _searchResults = new ObservableCollection<Game>();
         public ObservableCollection<Game> SearchResults
         {
@@ -36,141 +33,127 @@ namespace OmniMedia.ViewModels
             set => this.RaiseAndSetIfChanged(ref _searchResults, value);
         }
 
-        // Komenda do uruchomienia wyszukiwania
         public ReactiveCommand<Unit, Unit> SearchCommand { get; }
 
-        // Konstruktor ViewModelu
+        // TODO: Właściwość na zaznaczoną grę i Komenda do dodawania do kolekcji
+
+        private const string RawgApiKey = "ccd369cc710a46b2930caa85edadee4a"; // Mój prywatny klucz API
+        private readonly HttpClient _httpClient = new HttpClient();
+
         public GameSearchViewModel()
         {
-            _httpClient = new HttpClient(); // Inicjalizacja klienta HTTP
-
-            // Komenda wyszukiwania jest aktywna tylko wtedy, gdy zapytanie wyszukiwania nie jest puste
-            var canSearch = this.WhenAnyValue(x => x.SearchQuery, query => !string.IsNullOrWhiteSpace(query));
-
-            SearchCommand = ReactiveCommand.CreateFromTask(PerformSearch, canSearch);
+            SearchCommand = ReactiveCommand.CreateFromTask(PerformSearch,
+                                                           this.WhenAnyValue(x => x.SearchQuery)
+                                                               .Select(query => !string.IsNullOrWhiteSpace(query)));
         }
 
-        // Metoda asynchroniczna do wykonania wyszukiwania gier z API RAWG
         private async Task PerformSearch()
         {
-            SearchResults.Clear(); // Wyczyść poprzednie wyniki
+            SearchResults.Clear();
 
-            if (string.IsNullOrWhiteSpace(SearchQuery))
-            {
-                return; // Nie wyszukuj, jeśli zapytanie jest puste
-            }
+            var encodedQuery = HttpUtility.UrlEncode(SearchQuery);
+            var apiUrl = $"https://api.rawg.io/api/games?key={RawgApiKey}&search={encodedQuery}&page_size=20";
+
+            System.Diagnostics.Debug.WriteLine($"[GameSearchViewModel] Wykonuję zapytanie API: {apiUrl}");
 
             try
             {
-                // Budowanie adresu URL zapytania do API RAWG
-                // Dokumentacja API: https://rawg.io/apidocs
-                var requestUrl = $"https://api.rawg.io/api/games?key={RawgApiKey}&search={Uri.EscapeDataString(SearchQuery)}";
+                var response = await _httpClient.GetAsync(apiUrl);
+                response.EnsureSuccessStatusCode();
 
-                // Wykonanie zapytania HTTP GET
-                var response = await _httpClient.GetAsync(requestUrl);
-                response.EnsureSuccessStatusCode(); // Sprawdź, czy odpowiedź ma status powodzenia (2xx)
+                var jsonString = await response.Content.ReadAsStringAsync();
 
-                // Odczytanie odpowiedzi jako string (JSON)
-                var jsonResponse = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine($"[GameSearchViewModel] Otrzymano odpowiedź API (fragment): {jsonString.Substring(0, Math.Min(jsonString.Length, 500))}...");
 
-                // Deserializacja odpowiedzi JSON
-                var rawgResult = JsonSerializer.Deserialize<RawgApiResponse>(jsonResponse);
-
-                // Przetwarzanie wyników i dodawanie do listy SearchResults
-                if (rawgResult?.Results != null)
+                var apiResponse = JsonSerializer.Deserialize<GameApiResponse>(jsonString, new JsonSerializerOptions
                 {
-                    foreach (var rawgGame in rawgResult.Results)
+                    PropertyNameCaseInsensitive = true
+                });
+
+                if (apiResponse?.Results != null)
+                {
+                    await Dispatcher.UIThread.InvokeAsync(() =>
                     {
-                        // Mapowanie danych z obiektu RAWG na nasz model Game
-                        var game = new Game
+                        foreach (var result in apiResponse.Results)
                         {
-                            Title = rawgGame.Name,
-                            ReleasedDate = rawgGame.Released,
-                            Rating = rawgGame.Rating,
-                            ThumbnailUrl = rawgGame.BackgroundImage,
-                            // TODO: Mapowanie gatunków i platform może wymagać dodatkowej logiki
-                            Genre = rawgGame.Genres != null && rawgGame.Genres.Count > 0 ? rawgGame.Genres[0].Name : "N/A", // Przykładowe mapowanie pierwszego gatunku
-                            Platform = rawgGame.Platforms != null && rawgGame.Platforms.Count > 0 ? rawgGame.Platforms[0].PlatformDetails?.Name : "N/A" // Przykładowe mapowanie pierwszej platformy
-                        };
-                        SearchResults.Add(game);
-                    }
+                            var game = new Game
+                            {
+                                Title = result.Name,
+                                // Teraz Any() i Select() powinny działać
+                                Genre = result.Genres != null && result.Genres.Any() ? string.Join(", ", result.Genres.Select(g => g.Name)) : "N/A",
+                                Platform = result.Platforms != null && result.Platforms.Any() ? string.Join(", ", result.Platforms.Select(p => p.Platform.Name)) : "N/A",
+                                ThumbnailUrl = result.Background_image
+                            };
+                            SearchResults.Add(game);
+                        }
+                        System.Diagnostics.Debug.WriteLine($"[GameSearchViewModel] Dodano {SearchResults.Count} wyników do listy.");
+                    });
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine("[GameSearchViewModel] API zwróciło pustą listę wyników lub błąd deserializacji.");
                 }
             }
             catch (HttpRequestException e)
             {
-                // Obsługa błędów HTTP (np. brak połączenia, nieprawidłowy klucz API)
-                Console.WriteLine($"Błąd HTTP podczas wyszukiwania: {e.Message}");
-                // Można wyświetlić komunikat błędu użytkownikowi
+                System.Diagnostics.Debug.WriteLine($"[GameSearchViewModel] Błąd zapytania HTTP: {e.Message}");
             }
             catch (JsonException e)
             {
-                // Obsługa błędów deserializacji JSON
-                Console.WriteLine($"Błąd deserializacji JSON: {e.Message}");
-                // Można wyświetlić komunikat błędu użytkownikowi
+                System.Diagnostics.Debug.WriteLine($"[GameSearchViewModel] Błąd deserializacji JSON: {e.Message}");
             }
             catch (Exception e)
             {
-                // Obsługa innych błędów
-                Console.WriteLine($"Wystąpił błąd: {e.Message}");
-                // Można wyświetlić komunikat błędu użytkownikowi
+                System.Diagnostics.Debug.WriteLine($"[GameSearchViewModel] Nieoczekiwany błąd: {e.Message}");
             }
         }
 
-        // TODO: Dodaj metody do obsługi deserializacji odpowiedzi JSON z API RAWG
-        // Te klasy powinny odzwierciedlać strukturę odpowiedzi API
-        // Możesz je przenieść do osobnego pliku lub folderu (np. ApiModels) w przyszłości
-
-        // Klasa reprezentująca strukturę odpowiedzi API RAWG dla wyszukiwania
-        public class RawgApiResponse
+        // POMOCNICZE KLASY DO DESERIALIZACJI JSON
+        public class GameApiResponse
         {
-            [JsonPropertyName("results")] // Mapuje pole "results" z JSON na tę właściwość
-            public List<RawgGameResult>? Results { get; set; }
+            [JsonPropertyName("results")]
+            public List<GameApiResult>? Results { get; set; }
         }
 
-        // Klasa reprezentująca pojedynczy wynik gry w odpowiedzi API RAWG
-        public class RawgGameResult
+        public class GameApiResult
         {
+            [JsonPropertyName("id")]
+            public int Id { get; set; }
             [JsonPropertyName("name")]
             public string? Name { get; set; }
-
             [JsonPropertyName("released")]
             public DateTime? Released { get; set; }
-
+            [JsonPropertyName("background_image")]
+            public string? Background_image { get; set; }
             [JsonPropertyName("rating")]
             public double? Rating { get; set; }
 
-            [JsonPropertyName("background_image")]
-            public string? BackgroundImage { get; set; }
-
-            [JsonPropertyName("genres")]
-            public List<RawgGenre>? Genres { get; set; } // Lista gatunków
-
             [JsonPropertyName("platforms")]
-            public List<RawgPlatformContainer>? Platforms { get; set; } // Lista platform
+            public List<GameApiPlatform>? Platforms { get; set; }
+            [JsonPropertyName("genres")]
+            public List<GameApiGenre>? Genres { get; set; }
         }
 
-        // Klasa reprezentująca gatunek w odpowiedzi API RAWG
-        public class RawgGenre
-        {
-            [JsonPropertyName("name")]
-            public string? Name { get; set; }
-        }
-
-        // Klasa kontener na platformę w odpowiedzi API RAWG
-        public class RawgPlatformContainer
+        public class GameApiPlatform
         {
             [JsonPropertyName("platform")]
-            public RawgPlatform? PlatformDetails { get; set; } // Detale platformy
+            public PlatformDetail? Platform { get; set; }
         }
 
-        // Klasa reprezentująca detale platformy w odpowiedzi API RAWG
-        public class RawgPlatform
+        public class PlatformDetail
         {
+            [JsonPropertyName("id")]
+            public int Id { get; set; }
             [JsonPropertyName("name")]
             public string? Name { get; set; }
         }
 
-        // Pamiętać o zwolnieniu zasobów HttpClient w realnej aplikacji (np. w metodzie Dispose)
-        // W tym prostym przykładzie pomijamy zarządzanie zasobami HttpClient
+        public class GameApiGenre
+        {
+            [JsonPropertyName("id")]
+            public int Id { get; set; }
+            [JsonPropertyName("name")]
+            public string? Name { get; set; }
+        }
     }
 }
