@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:OmniMedia.ViewModels"
+			 xmlns:models="using:OmniMedia.Models"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="OmniMedia.Views.GameSearchView"
+             x:DataType="vm:GameSearchViewModel">
+
+	<Design.DataContext>
+		<vm:GameSearchViewModel />
+	</Design.DataContext>
+
+	<StackPanel Spacing="10" Margin="10">
+		<StackPanel Orientation="Horizontal" Spacing="5">
+			<TextBox Watermark="Wpisz tytuł gry..." Text="{Binding SearchQuery, Mode=TwoWay}" MinWidth="200"/>
+
+			<Button Content="Szukaj" Command="{Binding SearchCommand}"/>
+		</StackPanel>
+
+		<ListBox ItemsSource="{Binding SearchResults}" Height="300">
+			<ListBox.ItemTemplate>
+				<DataTemplate x:DataType="models:Game">
+					<StackPanel Orientation="Vertical">
+						<TextBlock Text="{Binding Title}" FontWeight="Bold"/>
+						<TextBlock Text="{Binding Genre}"/>
+						<TextBlock Text="{Binding Platform}"/>
+					</StackPanel>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
+	</StackPanel>
+</UserControl>
