@@ -77,40 +77,54 @@ namespace OmniMedia.ViewModels
                 // Subskrybuj zmiany i wywołaj metodę wyszukiwania
                 .Subscribe(async searchTerm => await DoSearch(searchTerm));
         }
-
-
         // Metoda wykonująca wyszukiwanie albumów
-        private async Task DoSearch(string? searchTerm)
+        private async Task<Unit> DoSearch(string? searchTerm) // Zmieniono typ zwracany na Task<Unit> dla zgodności z Subscribe w konstruktorze
         {
             // Anuluj poprzednie opóźnione zapytanie, jeśli istnieje
             _cancellationTokenSource?.Cancel();
             _cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = _cancellationTokenSource.Token;
 
-            IsBusy = true;
-            SearchResults.Clear();
+            // Upewnij się, że ustawienie IsBusy i czyszczenie wyników odbywa się w wątku UI
+            await Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                IsBusy = true;
+                SearchResults.Clear();
+            });
+
 
             if (string.IsNullOrWhiteSpace(searchTerm))
             {
-                IsBusy = false;
-                return;
+                // Upewnij się, że ustawienie IsBusy odbywa się w wątku UI
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    IsBusy = false;
+                });
+                return Unit.Default; // Zwróć Unit.Default
             }
 
             try
             {
-                Debug.WriteLine($"[MusicSearchViewModel] Rozpocynam wyszukiwanie albumów dla: '{searchTerm}'");
+                Debug.WriteLine($"[MusicSearchViewModel] Rozpoczynam wyszukiwanie albumów dla: '{searchTerm}'");
 
+                // Wywołaj wyszukiwanie albumów za pomocą iTunesSearch.Library
+                // ConfigureAwait(false) pozwala na kontynuację w wątku tła, co jest OK dla operacji nie-UI
                 var queryResult = await s_SearchManager.GetAlbumsAsync(searchTerm).ConfigureAwait(false);
 
                 if (cancellationToken.IsCancellationRequested)
                 {
                     Debug.WriteLine("[MusicSearchViewModel] Wyszukiwanie anulowane.");
-                    IsBusy = false;
-                    return;
+                    // Upewnij się, że ustawienie IsBusy odbywa się w wątku UI
+                    await Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        IsBusy = false;
+                    });
+                    return Unit.Default; // Zwróć Unit.Default
                 }
 
                 if (queryResult?.Albums != null)
                 {
+                    // Ten blok już był poprawny - dodawanie do kolekcji w wątku UI
                     await Dispatcher.UIThread.InvokeAsync(() =>
                     {
                         foreach (var album in queryResult.Albums)
@@ -119,23 +133,19 @@ namespace OmniMedia.ViewModels
                             {
                                 var musicAlbumData = new MusicAlbum
                                 {
-                                    iTunesId = (int)album.CollectionId, // Rzutowanie na int
+                                    iTunesId = (int)album.CollectionId,
                                     Title = album.CollectionName,
                                     Artist = album.ArtistName,
-                                    CoverUrl = album.ArtworkUrl100?.Replace("100x100bb", "600x600bb"), // Zmieniamy URL na większą okładkę
+                                    CoverUrl = album.ArtworkUrl100?.Replace("100x100bb", "600x600bb"),
                                     Genre = album.PrimaryGenreName,
-                                    ReleasedDate = DateTime.TryParse(album.ReleaseDate, out DateTime parsedDate) ? (DateTime?)parsedDate : null, // Parsowanie daty
+                                    ReleasedDate = DateTime.TryParse(album.ReleaseDate, out DateTime parsedDate) ? (DateTime?)parsedDate : null,
                                     CollectionPrice = album.CollectionPrice
                                 };
 
                                 // Tworzymy ViewModel elementu listy i PRZEKAZUJEMY MU KOMENDĘ DODAWANIA
-                                // Ta linia wymaga, aby AddAlbumToCollectionCommand był zadeklarowany i zainicjalizowany w tej klasie
                                 var albumVm = new SearchAlbumItemViewModel(musicAlbumData, AddAlbumToCollectionCommand);
 
-                                // TODO: Subskrybuj komendę "Dodaj do kolekcji" z tego ViewModelu elementu (TA LINIJKA JEST ZBĘDNA PRZY AKTUALNYM PODEJŚCIU)
-                                // albumVm.AddToCollectionCommand.Subscribe(async _ => await AddAlbumToCollection(albumVm));
-
-                                SearchResults.Add(albumVm); // Dodaj ViewModel elementu do kolekcji wyników
+                                SearchResults.Add(albumVm);
                             }
                             else
                             {
@@ -148,6 +158,8 @@ namespace OmniMedia.ViewModels
                 else
                 {
                     Debug.WriteLine("[MusicSearchViewModel] Wyszukiwanie zwróciło pusty lub niepoprawny wynik.");
+                    // TODO: Poinformuj użytkownika o braku wyników
+                    await ShowMessage("Brak wyników", $"Nie znaleziono albumów dla zapytania: '{searchTerm}'");
                 }
             }
             catch (TaskCanceledException)
@@ -157,13 +169,22 @@ namespace OmniMedia.ViewModels
             catch (Exception ex)
             {
                 Debug.WriteLine($"[MusicSearchViewModel] Błąd podczas wyszukiwania albumów: {ex.Message}");
-                // TODO: Poinformuj użytkownika o błędzie w UI (np. Toast notification, okno dialogowe)
+                // TODO: Poinformuj użytkownika o błędzie w UI
+                await ShowMessage("Błąd wyszukiwania", $"Wystąpił błąd podczas wyszukiwania: {ex.Message}");
             }
             finally
             {
-                IsBusy = false;
+                // Upewnij się, że ustawienie IsBusy odbywa się w wątku UI
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    IsBusy = false;
+                });
             }
+            return Unit.Default; // Zwróć Unit.Default na końcu metody Task<Unit>
         }
+
+
+
 
         // IMPLEMENTACJA METODY DO DODAWANIA ALBUMU DO KOLEKCJI
         // Ta metoda jest wywoływana, gdy komenda AddAlbumToCollectionCommand zostanie wykonana (przez ViewModel elementu listy)
