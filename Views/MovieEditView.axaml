@@ -1,0 +1,67 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:OmniMedia.ViewModels" mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="600"
+			 x:Class="OmniMedia.Views.MovieEditView"
+             x:DataType="vm:MovieEditViewModel">
+	<Design.DataContext>
+		<vm:MovieEditViewModel Title="Przykładowy Tytuł Filmu" Director="Jan Kowalski" Year="2023" IsOwned="True"/>
+	</Design.DataContext>
+
+	<ScrollViewer>
+		<StackPanel Spacing="10" Margin="10">
+			<TextBlock Text="Dodaj/Edytuj Film" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
+			<Grid ColumnDefinitions="Auto, *" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto">
+			</Grid>
+				<TextBlock Grid.Row="0" Grid.Column="0" Text="Tytuł:" VerticalAlignment="Center"/>
+				<TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Title}"/>
+
+				<TextBlock Grid.Row="1" Grid.Column="0" Text="Reżyser:" VerticalAlignment="Center"/>
+				<TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Director}"/>
+
+				<TextBlock Grid.Row="2" Grid.Column="0" Text="Rok:" VerticalAlignment="Center"/>
+				<TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Year}"/>
+
+				<TextBlock Grid.Row="3" Grid.Column="0" Text="Gatunek:" VerticalAlignment="Center"/>
+				<TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Genre}"/>
+
+				<TextBlock Grid.Row="4" Grid.Column="0" Text="Czas Trwania (minuty):" VerticalAlignment="Center"/>
+				<TextBox Grid.Row="4" Grid.Column="1" Text="{Binding DurationMinutes}"/>
+
+				<TextBlock Grid.Row="5" Grid.Column="0" Text="Ocena:" VerticalAlignment="Center"/>
+				<TextBox Grid.Row="5" Grid.Column="1" Text="{Binding Rating}"/>
+
+				<StackPanel Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" Spacing="10">
+					<CheckBox Content="Posiadany" IsChecked="{Binding IsOwned}"/>
+					<CheckBox Content="Na liście życzeń" IsChecked="{Binding IsOnWishlist}"/>
+				</StackPanel>
+
+				<TextBlock Grid.Row="7" Grid.Column="0" Text="Ścieżka Okładki:" VerticalAlignment="Center"/>
+				<TextBox Grid.Row="7" Grid.Column="1" Text="{Binding CoverArtPath}"/>
+
+				<TextBlock Grid.Row="8" Grid.Column="0" Text="Format:" VerticalAlignment="Center"/>
+				<TextBox Grid.Row="8" Grid.Column="1" Text="{Binding Format}"/>
+
+				<TextBlock Grid.Row="9" Grid.Column="0" Text="Lokalizacja:" VerticalAlignment="Center"/>
+				<TextBox Grid.Row="9" Grid.Column="1" Text="{Binding Location}"/>
+
+				<TextBlock Grid.Row="10" Grid.Column="0" Text="Streszczenie:" VerticalAlignment="Top"/>
+				<TextBox Grid.Row="10" Grid.Column="1"
+                         Text="{Binding PlotSummary}"
+                         AcceptsReturn="True" TextWrapping="Wrap" Height="80"/>
+				<TextBlock Grid.Row="11" Grid.Column="0" Text="Notatki:" VerticalAlignment="Top"/>
+				<TextBox Grid.Row="11" Grid.Column="1"
+                         Text="{Binding Notes}"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         Height="60"/>
+
+			<StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right" Margin="0,20,0,0">
+				<Button Content="Anuluj" Command="{Binding CancelCommand}"/>
+				<Button Content="Zapisz" Command="{Binding SaveMovieCommand}"/>
+			</StackPanel>
+
+		</StackPanel>
+	</ScrollViewer>
+</UserControl>
