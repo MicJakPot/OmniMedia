@@ -16,7 +16,7 @@
 
 	<Window.DataTemplates>
 		<DataTemplate DataType="imaging:Bitmap">
-			<Image Source="{Binding}"        Stretch="Uniform"       HorizontalAlignment="Center"
+			<Image Source="{Binding}"        Stretch="Fill"       HorizontalAlignment="Center"
                    VerticalAlignment="Center"/>
 		</DataTemplate>
 	</Window.DataTemplates>

@@ -138,7 +138,7 @@ namespace OmniMedia.ViewModels
         private Bitmap? LoadLogoImage()
         {
             // Ścieżka do obrazka w zasobach Avaloni. 
-            var assetPath = "avares://OmniMedia/Assets/Images/OmniMediaMainLogo.png"; 
+            var assetPath = "avares://OmniMedia/Assets/Images/OmniMedia Pro.png"; 
 
             try
             {
