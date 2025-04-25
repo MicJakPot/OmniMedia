@@ -1,0 +1,59 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:OmniMedia.ViewModels" mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             x:Class="OmniMedia.Views.MovieCollectionView" x:DataType="vm:MovieCollectionViewModel">
+	<Design.DataContext>
+		<vm:MovieCollectionViewModel/>
+	</Design.DataContext>
+
+	<DockPanel>
+		<StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10" Margin="10" HorizontalAlignment="Right">
+			<Button Content="Dodaj Film"
+					Command="{Binding AddMovieCommand}"/>
+
+			<ProgressBar IsIndeterminate="True"
+						IsVisible="{Binding IsBusy}"
+						VerticalAlignment="Center"
+						Width="20" Height="20"/>
+		</StackPanel>
+
+
+		<ListBox ItemsSource="{Binding CollectionItems}"
+                 Background="Transparent"
+                 Margin="10">
+
+			<ListBox.ItemTemplate>
+				<DataTemplate x:DataType="vm:CollectionMovieItemViewModel">
+					<Grid ColumnDefinitions="Auto, *, Auto" VerticalAlignment="Center">						<Image Grid.Column="0"
+                               Source="{Binding Cover}"
+                               Width="50" Height="50"
+                               Stretch="UniformToFill"/>
+
+						<StackPanel Grid.Column="1" VerticalAlignment="Center">
+							<TextBlock Text="{Binding Title}"
+                                       FontWeight="Bold"
+                                       FontSize="14"/>
+							<TextBlock Text="{Binding Director}"
+                                       FontSize="12"
+                                       Foreground="Gray"/>
+							<StackPanel Orientation="Horizontal" Spacing="5">
+								<TextBlock Text="{Binding Year}" FontSize="10"/>
+								<TextBlock Text="{Binding Genre}" FontSize="10"/>
+								<TextBlock Text="Posiadany" FontSize="10" FontWeight="Bold" IsVisible="{Binding IsOwned}"/>
+								<TextBlock Text="Lista życzeń" FontSize="10" FontWeight="Bold" IsVisible="{Binding IsOnWishlist}"/>
+							</StackPanel>
+						</StackPanel>
+
+						<Button Grid.Column="2"
+                                Content="Usuń"
+                                VerticalAlignment="Center"
+                                Command="{Binding RemoveFromCollectionCommand}"
+                                CommandParameter="{Binding}"/>
+					</Grid>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
+	</DockPanel>
+</UserControl>

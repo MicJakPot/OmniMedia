@@ -3,25 +3,49 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="using:OmniMedia.ViewModels"
+        xmlns:views="using:OmniMedia.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
         x:Class="OmniMedia.Views.CollectionWindow"
         Title="Przeglądaj Kolekcję"
         x:DataType="vm:CollectionWindowViewModel">
 
 	<Design.DataContext>
-		<vm:CollectionWindowViewModel />
+		<vm:CollectionWindowViewModel/>
 	</Design.DataContext>
 
-	<Grid RowDefinitions="Auto,*">
-		<StackPanel Grid.Row="0" Orientation="Horizontal" Spacing="10" Margin="10" HorizontalAlignment="Center">
-			<Button Content="Kolekcja Gier" Command="{Binding OpenGameCollectionCommand}"/>
-			<Button Content="Kolekcja Muzyki" Command="{Binding OpenMusicCollectionCommand}"/>
-			<Button Content="Kolekcja Filmów" Command="{Binding OpenMovieCollectionCommand}"/>
+	<Window.DataTemplates>
+		<DataTemplate DataType="vm:GameCollectionViewModel">
+			<views:GameCollectionView/>
+		</DataTemplate>
+
+		<DataTemplate DataType="vm:MusicCollectionViewModel">
+			<views:MusicCollectionView/>
+		</DataTemplate>
+
+		<DataTemplate DataType="vm:MovieCollectionViewModel">
+			<views:MovieCollectionView/>
+		</DataTemplate>
+
+	</Window.DataTemplates>
+
+
+	<DockPanel>
+		<StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10" Margin="10">
+			<Button Content="Kolekcja Gier"
+                    Command="{Binding OpenGameCollectionCommand}"/>
+
+			<Button Content="Kolekcja Muzyki"
+                    Command="{Binding OpenMusicCollectionCommand}"/>
+
+			<Button Content="Kolekcja Filmów"
+                    Command="{Binding OpenMovieCollectionCommand}"/>
+
 		</StackPanel>
 
-		<Border Grid.Row="1" Margin="10" BorderBrush="LightGray" BorderThickness="1">
-			<ContentControl Content="{Binding CurrentCollectionContent}" />
-		</Border>
-		
-	</Grid>
+		<ContentControl Content="{Binding CurrentCollectionContent}"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        Margin="10"/>
+
+	</DockPanel>
 </Window>

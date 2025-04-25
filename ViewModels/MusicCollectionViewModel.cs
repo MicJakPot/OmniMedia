@@ -1,17 +1,17 @@
 ﻿using ReactiveUI;
 using System;
 using System.Collections.ObjectModel;
-using System.Reactive;
+using System.Reactive; // Potrzebne do Unit, Interaction
 using System.Threading.Tasks;
 using System.Diagnostics;
-using OmniMedia.Models;
-using OmniMedia.Database;
-using Avalonia.Threading; // Potrzebne do Dispatcher
+using OmniMedia.Models; // Potrzebne do modelu MusicAlbum
+using OmniMedia.Database; // Potrzebne do AppDatabase
+using Avalonia.Threading;
+using System.Reactive.Linq; // Potrzebne do Observable.Select
 
 // Potrzebne do komunikatów (jeśli zdecydujemy się na okna dialogowe)
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using System.Reactive.Linq;
 
 
 namespace OmniMedia.ViewModels
@@ -28,8 +28,6 @@ namespace OmniMedia.ViewModels
         }
 
         // Komenda "Usuń z kolekcji"
-        // Ta komenda jest definiowana TUTAJ (w ViewModelu nadrzędnym kolekcji)
-        // i będzie wywoływana przez ViewModel elementu listy (CollectionAlbumItemViewModel)
         public ReactiveCommand<CollectionAlbumItemViewModel, Unit> RemoveFromCollectionCommand { get; }
 
         // Właściwość wskazująca, czy ładowanie kolekcji jest w toku
@@ -45,14 +43,12 @@ namespace OmniMedia.ViewModels
         public MusicCollectionViewModel()
         {
             // Inicjalizacja komendy "Usuń z kolekcji"
-            // Komenda będzie aktywna zawsze, chyba że dodamy warunek (np. gdy IsBusy jest false)
             RemoveFromCollectionCommand = ReactiveCommand.CreateFromTask<CollectionAlbumItemViewModel, Unit>(
                 RemoveFromCollection, // Metoda do wykonania
                 this.WhenAnyValue(x => x.IsBusy).Select(isBusy => !isBusy) // Komenda nieaktywna podczas ładowania
             );
 
             // Rozpocznij ładowanie albumów z bazy danych przy tworzeniu ViewModelu
-            // Uruchamiamy LoadAlbumsAsync w tle
             Task.Run(LoadAlbumsAsync);
         }
 
@@ -61,22 +57,20 @@ namespace OmniMedia.ViewModels
         private async Task<Unit> LoadAlbumsAsync()
         {
             Debug.WriteLine("[MusicCollectionViewModel] Rozpoczynam ładowanie albumów z bazy danych...");
-            IsBusy = true; // Ustaw stan ładowania
+            IsBusy = true;
 
             try
             {
-                // Pobierz wszystkie albumy z bazy danych
-                var albums = await App.Database.GetMusicAlbumsAsync();
+                // Pobierz wszystkie albumy z głównej bazy danych
+                var albums = await App.Database.GetMusicAlbumsAsync(); // Używamy App.Database
 
-                // Wyczyść obecną kolekcję (upewnij się, że w wątku UI)
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
                     CollectionItems.Clear();
-                    Debug.WriteLine($"[MusicCollectionViewModel] Wyczy\u015Bcono obecn\u0105 list\u0119 kolekcji ({CollectionItems.Count} element\u00f3w przed czyszczeniem).");
+                    Debug.WriteLine($"[MusicCollectionViewModel] Wyczy\u015Bcono obecn\u0105 list\u0119 kolekcji album\u00f3w ({CollectionItems.Count} element\u00f3w przed czyszczeniem).");
                 });
 
 
-                // Utwórz ViewModel elementu listy dla każdego albumu i dodaj do kolekcji (wątek UI)
                 if (albums != null)
                 {
                     await Dispatcher.UIThread.InvokeAsync(() =>
@@ -84,9 +78,9 @@ namespace OmniMedia.ViewModels
                         Debug.WriteLine($"[MusicCollectionViewModel] Przetwarzanie {albums.Count} album\u00f3w z bazy.");
                         foreach (var album in albums)
                         {
-                            // Tworzymy ViewModel elementu listy i PRZEKAZUJEMY MU KOMENDĘ USUWANIA
+                            // Tworzymy ViewModel elementu listy dla albumu
                             var albumVm = new CollectionAlbumItemViewModel(album, RemoveFromCollectionCommand);
-                            CollectionItems.Add(albumVm); // Dodaj do ObservableCollection (wątek UI)
+                            CollectionItems.Add(albumVm);
                         }
                         Debug.WriteLine($"[MusicCollectionViewModel] Dodano {CollectionItems.Count} album\u00f3w do kolekcji.");
                     });
@@ -103,15 +97,13 @@ namespace OmniMedia.ViewModels
             }
             finally
             {
-                IsBusy = false; // Zakończ stan ładowania
+                IsBusy = false;
                 Debug.WriteLine("[MusicCollectionViewModel] Zako\u0144czono \u0142adowanie album\u00f3w.");
             }
-            return Unit.Default; // Zwróć Unit.Default na końcu metody Task<Unit>
+            return Unit.Default;
         }
 
         // IMPLEMENTACJA METODY DO USUWANIA ALBUMU Z KOLEKCJI
-        // Ta metoda jest wywoływana, gdy komenda RemoveFromCollectionCommand zostanie wykonana
-        // Przyjmuje CollectionAlbumItemViewModel jako parametr
         private async Task<Unit> RemoveFromCollection(CollectionAlbumItemViewModel albumVm)
         {
             if (albumVm?.AlbumData == null) return Unit.Default;
@@ -135,27 +127,23 @@ namespace OmniMedia.ViewModels
                         Debug.WriteLine($"[MusicCollectionViewModel] Usuni\u0119to ViewModel albumu z ObservableCollection. Pozosta\u0142o {CollectionItems.Count} element\u00f3w.");
                     });
 
-                    // TODO: Poinformuj użytkownika o sukcesie
                     await ShowMessage("Usuni\u0119to album", $"Album '{albumVm.AlbumData.Title}' artysty '{albumVm.AlbumData.Artist}' zosta\u0142 usuni\u0119ty z kolekcji.");
                 }
                 else
                 {
                     Debug.WriteLine($"[MusicCollectionViewModel] Nie uda\u0142o si\u0119 usun\u0105\u0107 albumu '{albumVm.AlbumData.Title}' z bazy danych (result by\u0142 0).");
-                    // TODO: Poinformuj użytkownika o błędzie
                     await ShowMessage("B\u0142\u0105d usuwania", $"Nie uda\u0142o si\u0119 usun\u0105\u0107 albumu '{albumVm.AlbumData.Title}' z kolekcji.");
                 }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"[MusicCollectionViewModel] B\u0142\u0105d podczas usuwania albumu z bazy: {ex.Message}");
-                // TODO: Poinformuj użytkownika o błędzie
                 await ShowMessage("B\u0142\u0105d usuwania", $"Wyst\u0105pi\u0142 b\u0142\u0105d podczas usuwania albumu '{albumVm.AlbumData.Title}': {ex.Message}");
             }
-            return Unit.Default; // Zwróć Unit.Default
+            return Unit.Default;
         }
 
-        // --- Metoda pomocnicza do wyświetlania prostego komunikatu (analogiczna do tej w MusicSearchViewModel) ---
-        // Wymaga, aby okna aplikacji były dostępne (np. przez IApplicationLifetime)
+        // Metoda pomocnicza do wyświetlania prostego komunikatu
         private async Task ShowMessage(string title, string message)
         {
             if (Avalonia.Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
@@ -163,7 +151,7 @@ namespace OmniMedia.ViewModels
                 var mainWindow = desktop.MainWindow;
                 if (mainWindow != null)
                 {
-                    Debug.WriteLine($"[MusicCollectionViewModel] KOMUNIKAT (TODO: UI DIALOG): {title} - {message}"); // Na razie tylko log
+                    Debug.WriteLine($"[MusicCollectionViewModel] KOMUNIKAT (TODO: UI DIALOG): {title} - {message}");
                     // TODO: Użyj MessageBox.Avalonia lub innej metody do wyświetlenia dialogu w UI
                 }
                 else
@@ -177,8 +165,6 @@ namespace OmniMedia.ViewModels
             }
         }
 
-
-        // TODO: Dodaj inne właściwości lub komendy, jeśli będą potrzebne dla widoku kolekcji muzyki
-        // np. SelectedAlbum (jeśli chcesz wyświetlać szczegóły)
+        // TODO: Dodaj inne właściwości lub komendy
     }
 }
