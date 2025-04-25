@@ -28,6 +28,7 @@
     </PackageReference>
     <PackageReference Include="Avalonia.ReactiveUI" Version="11.2.8" />
     <PackageReference Include="IconPacks.Avalonia.FontAwesome" Version="1.0.0" />
+    <PackageReference Include="iTunesSearch" Version="1.0.44" />
     <PackageReference Include="sqlite-net-pcl" Version="1.9.172" />
   </ItemGroup>
 

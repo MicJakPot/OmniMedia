@@ -86,11 +86,17 @@ namespace OmniMedia.ViewModels
             });
 
 
-            // Przykładowe inicjalizacje pozostałych komend
+            // Inicjalizacja komendy "Szykaj Muzyki"
             OpenMusicSearchCommand = ReactiveCommand.Create(() => {
-                Debug.WriteLine("Kliknięto: Szukaj Muzyki (TODO)");
-                // TODO: Implementacja otwierania okna wyszukiwania muzyki
-                // Opcjonalnie powrót do logo: CurrentContent = _logoImage;
+                Debug.WriteLine("Kliknięto: Szukaj Muzyki. Otwarto MusicSearchWindow.");
+                // Tworzymy nową instancję MusicSearchWindow
+                var musicSearchWindow = new MusicSearchWindow
+                {
+                    // Ustawiamy DataContext nowego okna na nowy ViewModel MusicSearchViewModel
+                    DataContext = new MusicSearchViewModel()
+                };
+                // Wyświetlamy nowe okno
+                musicSearchWindow.Show();
             });
 
             OpenMovieSearchCommand = ReactiveCommand.Create(() => {
