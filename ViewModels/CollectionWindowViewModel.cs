@@ -4,11 +4,14 @@ using System.Collections.Generic;
 using System.Reactive;
 using System.Text;
 using System.Threading.Tasks;
-using OmniMedia.Database; // Potrzebne do AppDatabase
-using Avalonia.Threading; // Potrzebne do Dispatcher.UIThread
-using System.Collections.ObjectModel; // Potrzebne do ObservableCollection
-using OmniMedia.Models; // Potrzebne do modelu Game
+using OmniMedia.Database;
+using Avalonia.Threading;
+using System.Collections.ObjectModel;
+using OmniMedia.Models;
+
+// DODANE USINGI dla ViewModelów kolekcji
 using OmniMedia.ViewModels;
+
 
 namespace OmniMedia.ViewModels
 {
@@ -22,6 +25,13 @@ namespace OmniMedia.ViewModels
             get => _currentCollectionContent;
             set => this.RaiseAndSetIfChanged(ref _currentCollectionContent, value);
         }
+
+        // DODANE WŁAŚCIWOŚCI: Instancje ViewModelów dla poszczególnych kolekcji
+        // Tworzymy je raz w konstruktorze i przechowujemy
+        public GameCollectionViewModel GameCollection { get; private set; }
+        public MusicCollectionViewModel MusicCollection { get; private set; }
+        // TODO: Dodaj właściwość dla kolekcji filmów, gdy będzie gotowa
+
 
         // Komendy dla przycisków w tym oknie
 
@@ -41,24 +51,34 @@ namespace OmniMedia.ViewModels
         // Konstruktor ViewModelu
         public CollectionWindowViewModel()
         {
+            // Inicjalizacja instancji ViewModelów poszczególnych kolekcji
+            GameCollection = new GameCollectionViewModel();
+            MusicCollection = new MusicCollectionViewModel();
+
+            // Ustawiamy domyślnie wyświetlaną kolekcję na kolekcję gier przy starcie okna
+            CurrentCollectionContent = GameCollection;
+
+
             // Inicjalizacja komend przycisków
 
-            // Implementacja OpenGameCollectionCommand - ustawia CurrentCollectionContent na GameCollectionViewModel
+            // OpenGameCollectionCommand - ustawia CurrentCollectionContent na przechowywaną instancję GameCollection
             OpenGameCollectionCommand = ReactiveCommand.Create(() =>
             {
-                CurrentCollectionContent = new GameCollectionViewModel(); // Tworzymy i ustawiamy ViewModel dla Kolekcji Gier
-                System.Diagnostics.Debug.WriteLine("Kliknięto: Kolekcja Gier. Ustawiono GameCollectionViewModel."); // Komunikat debug
+                CurrentCollectionContent = GameCollection; // Ustawiamy CurrentCollectionContent na ZAINICJOWANĄ wcześniej instancję
+                System.Diagnostics.Debug.WriteLine("Kliknięto: Kolekcja Gier. Ustawiono GameCollectionViewModel.");
             });
 
-            // Przykładowe inicjalizacje pozostałych komend (na razie puste)
+            // OpenMusicCollectionCommand - ustawia CurrentCollectionContent na przechowywaną instancję MusicCollection
             OpenMusicCollectionCommand = ReactiveCommand.Create(() => {
-                // TODO: Logika otwierania widoku Kolekcji Muzyki
-                System.Diagnostics.Debug.WriteLine("Kliknięto: Kolekcja Muzyki");
+                CurrentCollectionContent = MusicCollection; // Ustawiamy CurrentCollectionContent na ZAINICJOWANĄ wcześniej instancję
+                System.Diagnostics.Debug.WriteLine("Kliknięto: Kolekcja Muzyki. Ustawiono MusicCollectionViewModel.");
             });
 
+            // Implementacja komendy dla przycisku "Kolekcja Filmów" (TODO)
             OpenMovieCollectionCommand = ReactiveCommand.Create(() => {
                 // TODO: Logika otwierania widoku Kolekcji Filmów
-                System.Diagnostics.Debug.WriteLine("Kliknięto: Kolekcja Filmów");
+                // CurrentCollectionContent = MovieCollection; // Ustawiamy CurrentCollectionContent na instancję kolekcji filmów (gdy będzie gotowa)
+                System.Diagnostics.Debug.WriteLine("Kliknięto: Kolekcja Filmów (TODO)");
             });
 
             // TODO: Logika ładowania miniatur ostatnio dodanych treści (jeśli będą w tym ViewModelu)

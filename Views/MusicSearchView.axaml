@@ -2,9 +2,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="using:OmniMedia.ViewModels" xmlns:icons="using:OmniMedia.Assets.Icons" xmlns:images="using:OmniMedia.Assets.Images" mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
+             xmlns:vm="using:OmniMedia.ViewModels"
+             xmlns:icons="using:OmniMedia.Assets.Icons"
+             xmlns:images="using:OmniMedia.Assets.Images"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="600"
              x:Class="OmniMedia.Views.MusicSearchView"
              x:DataType="vm:MusicSearchViewModel">
+
 	<Design.DataContext>
 		<vm:MusicSearchViewModel/>
 	</Design.DataContext>
@@ -34,31 +38,34 @@
                             Background="White"
                             Padding="5"
                             Width="150" Height="220">
-						<StackPanel Spacing="5">
-							<Image Source="{Binding Cover}"
-                                   Width="140" Height="140"
-                                   Stretch="UniformToFill"
-                                   HorizontalAlignment="Center"/>
-
-							<TextBlock Text="{Binding Title}"
-                                       TextAlignment="Center"
-                                       TextWrapping="Wrap"
-                                       FontWeight="Bold"
-                                       FontSize="12"
-                                       MaxHeight="30"/>
-
-							<TextBlock Text="{Binding Artist}"
-                                       TextAlignment="Center"
-                                       TextWrapping="Wrap"
-                                       FontSize="10"
-                                       MaxHeight="25"/>
-
+						<DockPanel>
 							<Button Content="Dodaj"
+                                    DockPanel.Dock="Bottom"
                                     HorizontalAlignment="Stretch"
                                     Command="{Binding AddToCollectionCommand}"
                                     CommandParameter="{Binding}"
                                     Margin="0,5,0,0"/>
-						</StackPanel>
+
+							<StackPanel Spacing="5">
+								<Image Source="{Binding Cover}"
+                                       Width="140" Height="140"
+                                       Stretch="UniformToFill"
+                                       HorizontalAlignment="Center"/>
+
+								<TextBlock Text="{Binding Title}"
+                                           TextAlignment="Center"
+                                           TextWrapping="Wrap"
+                                           FontWeight="Bold"
+                                           FontSize="12"
+                                           MaxHeight="30"/>
+
+								<TextBlock Text="{Binding Artist}"
+                                           TextAlignment="Center"
+                                           TextWrapping="Wrap"
+                                           FontSize="10"
+                                           MaxHeight="25"/>
+							</StackPanel>
+						</DockPanel>
 					</Border>
 				</DataTemplate>
 			</ListBox.ItemTemplate>
