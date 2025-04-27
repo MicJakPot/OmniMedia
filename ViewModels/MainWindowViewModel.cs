@@ -4,7 +4,7 @@ using System;
 using System.Reactive;
 using System.Threading.Tasks;
 using OmniMedia.Views; // Potrzebne do odwołania do CollectionWindow i GameSearchWindow
-using System.Diagnostics; // Pozostawione na potrzeby innych komunikatów
+using System.Diagnostics; // Debug Writeline
 using Avalonia.Media.Imaging; // Potrzebne do Bitmap
 using System.IO; // Potrzebne do Stream
 using Avalonia.Platform; // Potrzebne do AssetLoader

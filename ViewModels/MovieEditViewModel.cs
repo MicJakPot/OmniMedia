@@ -3,9 +3,7 @@ using System;
 using System.Reactive; // Potrzebne do Unit i Interaction
 using System.Threading.Tasks;
 using OmniMedia.Models; // Potrzebne do modelu Movie
-using System.Diagnostics; // Potrzebne do Debug
-
-// Usunięto using ReactiveUI.Fody.Helpers; - nie jest potrzebne bez [Reactive]
+using System.Diagnostics; // Debug Writeline
 
 
 namespace OmniMedia.ViewModels
