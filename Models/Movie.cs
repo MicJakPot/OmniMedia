@@ -33,7 +33,7 @@ namespace OmniMedia.Models
         [MaxLength(500)] // Ograniczamy długość notatek
         public string? Notes { get; set; } // Dodatkowe notatki użytkownika
 
-        // TODO: Możesz dodać inne pola, jeśli będą potrzebne, np.
+        // TODO: Można dodać inne pola, jeśli będą potrzebne, np.
         // public string? Actors { get; set; } // Lista głównych aktorów
         // public string? Language { get; set; } // Język filmu/audio
 

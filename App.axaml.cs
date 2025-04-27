@@ -74,7 +74,8 @@ namespace OmniMedia
             {
                 desktop.MainWindow = new MainWindow
                 {
-                    DataContext = new MainWindowViewModel(),
+                    // ZMODYFIKOWANA LINIA: PRZEKAZYWANIE INSTANCJI BAZ DANYCH DO VIEWMODELU
+                    DataContext = new MainWindowViewModel(Database, MovieDatabase),
                 };
             }
             else if (ApplicationLifetime is ISingleViewApplicationLifetime singleView)

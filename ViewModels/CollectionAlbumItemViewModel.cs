@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Avalonia.Threading; // Potrzebne do Dispatcher
 using System.Net.Http; // Potrzebne do HttpClient (do ładowania obrazków)
 using Avalonia.Platform; // Potrzebne do AssetLoader
-using System.IO; // Potrzebne do Stream
+using System.IO; // Potrzebne do Stream w przyszłości
 using System.Reactive; // Potrzebne do Unit
 
 

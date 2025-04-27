@@ -23,7 +23,7 @@ namespace OmniMedia.ViewModels
         // ViewModel dla kolekcji muzyki
         public MusicCollectionViewModel MusicCollection { get; private set; }
 
-        // DODANE: ViewModel dla kolekcji filmów
+        // ViewModel dla kolekcji filmów
         public MovieCollectionViewModel MovieCollection { get; private set; }
 
 
@@ -55,7 +55,7 @@ namespace OmniMedia.ViewModels
             // Inicjalizujemy instancje ViewModelów poszczególnych kolekcji
             GameCollection = new GameCollectionViewModel();
             MusicCollection = new MusicCollectionViewModel();
-            // DODANE: Inicjalizujemy ViewModel dla filmów
+            // Inicjalizujemy ViewModel dla filmów
             MovieCollection = new MovieCollectionViewModel();
 
 
@@ -87,8 +87,7 @@ namespace OmniMedia.ViewModels
             // TODO: Logika ładowania miniatur ostatnio dodanych treści
         }
 
-        // TODO: Możesz potrzebować ViewModelu dla pojedynczej miniaturki
+        // TODO: Możemy potrzebować ViewModelu dla pojedynczej miniaturki
 
-        // TODO: Usunięto metody LoadGamesAsync itp., jeśli były w tym ViewModelu, powinny być w swoich własnych ViewModelach kolekcji
     }
 }

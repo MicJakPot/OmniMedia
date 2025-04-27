@@ -147,7 +147,7 @@ namespace OmniMedia.ViewModels
             }
         }
 
-        // TODO: Możesz potrzebować ViewModelu dla pojedynczej miniaturki (jeśli miniatury ostatnio dodanych są w tym ViewModelu)
+        // TODO: Możemy potrzebować ViewModelu dla pojedynczej miniaturki (jeśli miniatury ostatnio dodanych są w tym ViewModelu)
         // public class RecentlyAddedItemViewModel : ViewModelBase { ... }
 
     }

@@ -12,7 +12,7 @@ using System.Reactive;
 using Avalonia.Threading; // Potrzebne do Dispatcher
 
 // DODANE USINGI DLA KOMUNIKATÓW
-using Avalonia.Controls; // Potrzebne jeśli będziesz używać okna dialogowego
+using Avalonia.Controls; // Potrzebne jeśli będziemy używać okna dialogowego
 using Avalonia.Controls.ApplicationLifetimes; // Potrzebne do dostępu do głównego okna
 
 

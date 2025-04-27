@@ -41,6 +41,6 @@ namespace OmniMedia.Models
 
         }
 
-        // TODO: Możesz dodać metody lub logikę specyficzną dla modelu MusicAlbum w przyszłości
+        // TODO: Można dodać metody lub logikę specyficzną dla modelu MusicAlbum w przyszłości
     }
 }
