@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic; // Możliwe, że potrzebne do listy gatunków/platform
+using System.Collections.Generic; 
 using System.Text;
 using SQLite;
 
-namespace OmniMedia.Models // Przestrzeń nazw dla modeli danych
+namespace OmniMedia.Models 
 {
     // Klasa reprezentująca grę w aplikacji
     public class Game

@@ -17,10 +17,6 @@ namespace OmniMedia.Database
         public AppDatabase(string dbPath)
         {
             _database = new SQLiteAsyncConnection(dbPath);
-            // Ważne: tworzenie tabel powinno odbywać się asynchronicznie, ale
-            // w konstruktorze używamy Wait(), aby mieć pewność, że tabele istnieją przed dalszym użyciem bazy.
-            // Lepszym podejściem w bardziej złożonych aplikacjach byłoby wywołanie CreateTablesAsync
-            // w punkcie wejścia aplikacji i poczekanie na jego zakończenie.
             Task.Run(() => CreateTablesAsync()).Wait(); // Wywołujemy tworzenie tabel przy starcie
         }
 
@@ -49,7 +45,7 @@ namespace OmniMedia.Database
         }
 
         // Metoda pobierająca konkretną grę po ID
-        public async Task<Game?> GetGameAsync(int id) // Zmieniono na async Task<Game?>
+        public async Task<Game?> GetGameAsync(int id) 
         {
             Debug.WriteLine($"[AppDatabase] Rozpoczynam pobieranie gry o ID: {id} z bazy danych...");
             // Zwraca grę z konkretnym ID, lub null jeśli nie znaleziono
@@ -103,7 +99,7 @@ namespace OmniMedia.Database
         }
 
         // Metoda pobierająca konkretny album muzyczny po ID
-        public async Task<MusicAlbum?> GetMusicAlbumAsync(int id) // Zmieniono na async Task<MusicAlbum?>
+        public async Task<MusicAlbum?> GetMusicAlbumAsync(int id) 
         {
             Debug.WriteLine($"[AppDatabase] Rozpoczynam pobieranie albumu muzycznego o ID: {id} z bazy danych...");
             // Zwraca album z konkretnym ID, lub null jeśli nie znaleziono
