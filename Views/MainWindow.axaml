@@ -7,16 +7,13 @@
         xmlns:iconPacks="using:Avalonia.IconPacks"
         xmlns:imaging="using:Avalonia.Media.Imaging"  mc:Ignorable="d" d:DesignWidth="900" d:DesignHeight="600"
         x:Class="OmniMedia.Views.MainWindow"
+        Icon="avares://OmniMedia/Assets/Images/OmniMedia Pro.png"
         Title="OmniMedia"
         x:DataType="vm:MainWindowViewModel">
 
-	<Design.DataContext>
-		<vm:MainWindowViewModel/>
-	</Design.DataContext>
-
 	<Window.DataTemplates>
 		<DataTemplate DataType="imaging:Bitmap">
-			<Image Source="{Binding}"        Stretch="Fill"       HorizontalAlignment="Center"
+			<Image Source="{Binding}"      Stretch="Fill"      HorizontalAlignment="Center"
                    VerticalAlignment="Center"/>
 		</DataTemplate>
 	</Window.DataTemplates>
