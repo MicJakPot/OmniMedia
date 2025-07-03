@@ -9,6 +9,7 @@ using Avalonia.Media.Imaging; // Potrzebne do Bitmap
 using System.IO; // Potrzebne do Stream
 using Avalonia.Platform; // Potrzebne do AssetLoader
 using System.Reflection; // Potrzebne do Assembly
+using OmniMedia.Services; // Serwis eksportu/importu
 
 
 namespace OmniMedia.ViewModels
@@ -105,16 +106,42 @@ namespace OmniMedia.ViewModels
                 // Opcjonalnie powrót do logo: CurrentContent = _logoImage;
             });
 
-            ExportDatabaseCommand = ReactiveCommand.Create(() => {
-                Debug.WriteLine("Kliknięto: Eksportuj Bazę (TODO)");
-                // TODO: Implementacja eksportu bazy danych
-                // Opcjonalnie powrót do logo: CurrentContent = _logoImage;
+            ExportDatabaseCommand = ReactiveCommand.CreateFromTask(async () => {
+                try
+                {
+                    Debug.WriteLine("Kliknięto: Eksportuj Bazę");
+                    var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "OmniMedia");
+                    Directory.CreateDirectory(folder);
+                    var pdfPath = Path.Combine(folder, "OmniMediaExport.pdf");
+                    await DatabaseExportImportService.ExportDatabaseToPdfAsync(pdfPath);
+                    Debug.WriteLine($"[MainWindowViewModel] Zapisano eksport pod {pdfPath}");
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[MainWindowViewModel] Błąd eksportu bazy: {ex.Message}");
+                }
             });
 
-            ImportDatabaseCommand = ReactiveCommand.Create(() => {
-                Debug.WriteLine("Kliknięto: Importuj Bazę (TODO)");
-                // TODO: Implementacja importu bazy danych
-                // Opcjonalnie powrót do logo: CurrentContent = _logoImage;
+            ImportDatabaseCommand = ReactiveCommand.CreateFromTask(async () => {
+                try
+                {
+                    Debug.WriteLine("Kliknięto: Importuj Bazę");
+                    var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "OmniMedia");
+                    var xlsPath = Path.Combine(folder, "OmniMediaImport.xlsx");
+                    if (File.Exists(xlsPath))
+                    {
+                        await DatabaseExportImportService.ImportFromXlsAsync(xlsPath);
+                        Debug.WriteLine($"[MainWindowViewModel] Zaimportowano dane z {xlsPath}");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"[MainWindowViewModel] Plik importu nie istnieje: {xlsPath}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[MainWindowViewModel] Błąd importu bazy: {ex.Message}");
+                }
             });
 
             OpenSettingsCommand = ReactiveCommand.Create(() => {
